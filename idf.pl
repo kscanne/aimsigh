@@ -51,11 +51,11 @@ foreach my $doctxt (readdir DIRH) {
 		my @stat1 = stat($foinse);
 		my @stat2 = stat($sprioc);
 		$doit = ($stat1[9] > $stat2[9]);
-		print "Computing tfidf (out of date)...\n" if $doit;
+		print "Computing tfidf for $doctxt (out of date)...\n" if $doit;
 	}
 	else {
 		$doit = 1;
-		print "Computing tfidf (first time)...\n";
+		print "Computing tfidf for $doctxt (first time)...\n";
 	}
 	if ($doit) {
 		open (FOINSE, "<", $foinse) or die "Could not open source file $doctxt: $!\n";
