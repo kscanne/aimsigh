@@ -1,7 +1,16 @@
 #!/usr/bin/perl
 
 # reads in tfidf data for files and uses this to quickly
-# find all duplicate pairs
+# find all duplicate pairs. 
+# 
+# Should only call this from makefile; "make killdupes"
+#
+# External output is placed in two files; one is 
+# "dupescr" script containing the appropriate dockill commands,
+# and the other is a "dupelog" that gets added on to the
+# global log ./DUPELOG
+
+
 
 use strict;
 use warnings;
@@ -30,7 +39,7 @@ sub make_a_decision
 		print TORTHAI "dockill $cand\n";
 		my $url1;
 		my $url2;
-		open (INFO, "<", "$sonrai/$docnum.txt") or die "Could not open data file $docnum: $!\n";
+		open (INFO, "<", "$sonrai/$docnum.dat") or die "Could not open data file $docnum: $!\n";
 		while (<INFO>) {
 			chomp;
 			if (m/^url: /) {
@@ -39,15 +48,15 @@ sub make_a_decision
 			}
 		}
 		close INFO;
-		open (INFO, "<", "$sonrai/$cand.txt") or die "Could not open data file $cand: $!\n";
-		while (<INFO>) {
+		open (INFO2, "<", "$sonrai/$cand.dat") or die "Could not open data file $cand: $!\n";
+		while (<INFO2>) {
 			chomp;
 			if (m/^url: /) {
 				$url2 = $_;
 				$url2 =~ s/^url: //;
 			}
 		}
-		close INFO;
+		close INFO2;
 		print LOGCHOMHAD "$url1\n$url2\n\n";
 	}
 }
@@ -95,7 +104,7 @@ foreach my $doctxt (readdir DIRH) {
 		}
 	}
 	foreach (keys %cands) {
-		push @todo, $_ if ($cands{$_}==$VERYSPECIAL and $doctxt < $_);
+		push @todo, $_ if ($cands{$_}==$VERYSPECIAL and $docnum < $_);
 	}
 	if (scalar @todo > 0) {
 		while (<FOINSE>) {
