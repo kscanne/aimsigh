@@ -1,0 +1,124 @@
+#!/usr/bin/perl
+
+# reads in tfidf data for files and uses this to quickly
+# find all duplicate pairs
+
+use strict;
+use warnings;
+
+binmode STDOUT, ":encoding(iso-8859-1)";
+binmode STDERR, ":encoding(iso-8859-1)";
+binmode STDIN, ":bytes";
+
+my $base='/snapshot/aimsigh/TFIDF';
+my $sonrai='/usr/local/share/crubadan/ga/sonrai';
+my %bighash;   # hash of hashes
+my $N;
+my $SPECIAL=10;       # number of unusual terms to index for each doc
+my $VERYSPECIAL=4;    # how many among the most unusual terms must appear 
+                      # among the SPECIAL terms of another doc for them
+		      # to be treated as dupe candidates
+
+open (TORTHAI, ">", "./dupescr") or die "Could not open script file dupescr: $!\n";
+open (LOGCHOMHAD, ">", "./dupelog") or die "Could not open log file dupelog: $!\n";
+
+sub make_a_decision
+{
+	(my $docnum, my $cand, my $cosine) = @_;
+	if ($cosine > 0.97) {
+		print "sim($docnum,$cand)=$cosine\n";
+		print TORTHAI "dockill $cand\n";
+		my $url1;
+		my $url2;
+		open (INFO, "<", "$sonrai/$docnum.txt") or die "Could not open data file $docnum: $!\n";
+		while (<INFO>) {
+			chomp;
+			if (m/^url: /) {
+				$url1 = $_;
+				$url1 =~ s/^url: //;
+			}
+		}
+		close INFO;
+		open (INFO, "<", "$sonrai/$cand.txt") or die "Could not open data file $cand: $!\n";
+		while (<INFO>) {
+			chomp;
+			if (m/^url: /) {
+				$url2 = $_;
+				$url2 =~ s/^url: //;
+			}
+		}
+		close INFO;
+		print LOGCHOMHAD "$url1\n$url2\n\n";
+	}
+}
+
+opendir DIRH, $base or die "could not open $base: $!\n";
+foreach my $doctxt (readdir DIRH) {
+	next if $doctxt !~ /\.txt$/;
+	(my $docnum) = $doctxt =~ /^([0-9]+)/;
+	$N++;
+	print "$N..." if ($N % 100 == 0);
+	open (FOINSE, "<", "$base/$doctxt") or die "Could not open source file $doctxt: $!\n";
+	for (1..$SPECIAL) {
+		my $w = <FOINSE>;
+		if (defined($w)) {  # in case of very short files!
+			chomp $w;
+			$w =~ s/^[^ ]+ //;
+			$bighash{$w}->{$docnum}++;
+		}
+	}
+	close FOINSE;
+}
+closedir DIRH;
+print "Done reading top-tens from tfidf files...\n";
+$N=0;
+print "Now rereading token files and looking for dupes...\n";
+opendir DIRH, $base or die "could not open $base: $!\n";
+foreach my $doctxt (readdir DIRH) {
+	next if $doctxt !~ /\.txt$/;
+	$N++;
+	print "$N..." if ($N % 100 == 0);
+	my $docnum = $doctxt;
+	$docnum =~ s/\.txt//;
+	my %tfidf;
+	my %cands;
+	my @todo;
+	open (FOINSE, "<", "$base/$doctxt") or die "Could not open source file $doctxt: $!\n";
+	for (1..$VERYSPECIAL) {
+		my $line = <FOINSE>;
+		if (defined $line) {  # VERY short token list
+			chomp $line;
+			$line =~ /^([^ ]+) (.*)$/;
+			my $w = $2;
+			$tfidf{$w} = $1;
+			$cands{$_}++ foreach (keys %{$bighash{$w}});
+		}
+	}
+	foreach (keys %cands) {
+		push @todo, $_ if ($cands{$_}==$VERYSPECIAL and $doctxt < $_);
+	}
+	if (scalar @todo > 0) {
+		while (<FOINSE>) {
+			chomp;
+			/^([^ ]+) (.*)$/;
+			$tfidf{$2} = $1;
+		}
+		foreach my $cand (@todo) {
+			open (FOINSEEILE, "<", "$base/$cand.txt") or die "Could not open source file $cand: $!\n";
+			my $cosine=0;
+			while (<FOINSEEILE>) {
+				chomp;
+				(my $val, my $w) = /^([^ ]+) (.*)$/;
+				$cosine += $val*($tfidf{$w}) if (exists($tfidf{$w}));
+			}
+			close FOINSEEILE;
+			make_a_decision($docnum, $cand, $cosine);
+		}
+	}
+	close FOINSE;
+}
+closedir DIRH;
+close TORTHAI;
+close LOGCHOMHAD;
+
+exit 0;

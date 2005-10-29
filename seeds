@@ -1,0 +1,23 @@
+#!/bin/bash
+#  Now deal with listserv archives; monthly indices are already in DEANTA
+#  so can't seed with the two top-level URLs, need to seed with each
+#  monthly separately
+TEMPFILE=`mktemp`
+MONTHLY=`mktemp`
+wget -O "${TEMPFILE}" 'https://listserv.heanet.ie/cgi-bin/wa?A0=seanchas-l&T=0'
+cat "${TEMPFILE}" | get_refs.pl 'https://listserv.heanet.ie/cgi-bin/wa?A0=seanchas-l&T=0' > ${MONTHLY}
+#wget -O "${TEMPFILE}" 'https://listserv.heanet.ie/cgi-bin/wa?A0=gaelic-l&T=0'
+#cat "${TEMPFILE}" | get_refs.pl 'https://listserv.heanet.ie/cgi-bin/wa?A0=gaelic-l&T=0' > ${MONTHLY}
+#rm -f "${TEMPFILE}"
+#wget -O "${TEMPFILE}" 'https://listserv.heanet.ie/cgi-bin/wa?A0=gaeilge-a&T=0'
+#cat "${TEMPFILE}" | get_refs.pl 'https://listserv.heanet.ie/cgi-bin/wa?A0=gaelic-l&T=0' >> ${MONTHLY}
+cat $MONTHLY | egrep 'cgi-bin/wa\?A1=ind' |
+while read url
+do
+	seed "$url"
+done
+rm -f "${TEMPFILE}" "${MONTHLY}"
+#seed 'http://www.scoilgaeilge.org/liosta/viewforum.php?f=2'
+#seed 'http://www.scoilgaeilge.org/liosta/viewforum.php?f=2&start=50'
+#seed 'http://www.scoilgaeilge.org/liosta/viewforum.php?f=2&start=100'
+exit 0

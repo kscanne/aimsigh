@@ -1,0 +1,27 @@
+body {
+	color: black;
+	background-color: white;
+}
+hr {
+	color: blue;
+	background-color: blue;
+	height: 2px;
+}
+img.nasctha {
+	border-style:none;
+	border-width:0px;
+}
+.beag {
+	font-size: 0.7em;
+}
+.laraithe {
+	text-align: center;
+}
+.bloclaraithe {
+	margin-left: auto;
+	margin-right: auto;
+	width: 23em;
+}
+.cle {
+	text-align: left;
+}

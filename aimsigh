@@ -1,0 +1,116 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use utf8;
+use Encode qw(from_to);
+
+binmode STDOUT, ":utf8";
+my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
+
+# this is the central hub that runs the whole search process from
+# query (input on command line from cgi) to returned html
+# There are three command line args:
+# First is the query itself, from the search box:
+my $query = $ARGV[0];
+my $qhtml = $query;
+from_to($qhtml,"UTF-8","ISO-8859-1");  # double-encoded, so really the result is utf-8 encoded
+
+# Second is a string matching ^[YN]{3}$, indicating which of the
+# options on the front page are selected
+my $options = $ARGV[1];
+
+# third is the number of results seen on earlier pages
+my $seen = $ARGV[2];
+
+# first, send query to yacc for parse
+# and to berkeley db program to load and search indices
+# these return a list of doc numbers
+#   should also look in cached search results
+
+local *PIPE;
+
+my $pid = open PIPE, "-|";
+die "Theip ar dhéanamh an fhorc: $!" unless defined $pid;
+unless ( $pid ) {
+	exec '/usr/local/bin/cuard', @ARGV or die 'Ní féidir píopa a oscailt: $!';
+}
+
+# read a list of corpus filename 100000..999999
+my @matches = <PIPE>;
+close PIPE;
+my $num = scalar @matches;
+my $start = $seen + 1;
+my $end = $seen + 10;  # ten results per page
+$end = $num if ($num < $end);
+
+
+# Now RANK them somehow.
+# Ideas: store "pagerank"-style link counts in a small db and use
+# those to keep a global ordering on docs.  Can also keep 8 parallel
+# indices which only track "prominent" terms from docs; words in title,
+# descr, H1, keywords, higher-than-expected terms, first 20 words.
+
+
+# Finally, output first page of HTML
+my $neamhfoirm='';
+$neamhfoirm='<input type="hidden" name="neamhchaighdean" value="neamhchaighdean">' if ($options =~ /Y$/);
+(my $claoch, my $neamh) = $options =~ m/^(..)(.)$/;
+print <<HEADER;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+        "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="ga">
+  <head>
+    <title>$qhtml - Cuardach aimsigh.com</title>
+    <meta http-equiv="Content-Language" content="ga">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="author" content="aimsigh.com">
+    <link rel="stylesheet" href="/aimsigh/aimsigh.css" type="text/css">
+  </head>
+  <body>
+    <form class="laraithe" action="/cgi-bin/aimsigh.cgi" method="POST">
+      <a href="http://www.aimsigh.com/"><img class="nasctha" src="/aimsigh/aimsigh.png" alt="aimsigh.com"></a><br>
+      <input size="50" name="ionchur" value="$qhtml"><br>
+      <input type="submit" name="foirm" value="Aimsigh é"><br>
+      <input type="hidden" name="feicthe" value="0">
+      <input type="hidden" name="claochlu" value="$claoch">
+      $neamhfoirm
+    </form>
+    <hr>
+HEADER
+
+
+print "Torthaí $start - $end as $num á dtaispeáint:\n";
+### PUT RESULTS HERE
+
+my $currpage = 1 + $seen/10;
+my $firstlinkedpage = $currpage-10;
+$firstlinkedpage = 1 if ($firstlinkedpage < 1);
+my $lastlinkedpage = $currpage+9;
+my $newseen;
+print "<p class=\"laraithe\">Leathanach:&nbsp;&nbsp;&nbsp;&nbsp;\n";
+if ($firstlinkedpage > 1) {
+	$newseen=$seen-10;
+	print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\"><b>Siar</b></a>\n";
+}
+for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
+	if ($leathanach == $currpage) {
+		print "<b>$leathanach</b>\n";
+	}
+	else {
+		$newseen=10*($leathanach-1);
+		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\">$leathanach</a>\n";
+	}
+}
+$newseen=$seen+10;
+print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\"><b>Ar Aghaidh</b></a>\n</p>";
+
+
+print <<FOOTER;
+    <hr>
+    <p class="beag">Cóipcheart © 2005 <a href="/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
+  </body>
+</html>
+FOOTER
+
+exit 0;
