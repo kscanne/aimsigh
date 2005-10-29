@@ -44,6 +44,7 @@ preindices : FORCE
 killdupes : FORCE
 	rm -f dupescr dupelog
 	perl dupe.pl
+	`date` >> DUPELOG
 	cat dupelog >> DUPELOG
 	rm -f dupelog
 	echo 'look at dupescr and then bash it to actually kill the dupes'
