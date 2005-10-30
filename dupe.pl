@@ -20,7 +20,8 @@ binmode STDERR, ":encoding(iso-8859-1)";
 binmode STDIN, ":bytes";
 
 my $base='/snapshot/aimsigh/TFIDF';
-my $sonrai='/usr/local/share/crubadan/ga/sonrai';
+my $dummy;
+my $crubadan='/usr/local/share/crubadan/ga';
 my %bighash;   # hash of hashes
 my $N;
 my $SPECIAL=10;       # number of unusual terms to index for each doc
@@ -30,16 +31,19 @@ my $VERYSPECIAL=4;    # how many among the most unusual terms must appear
 
 open (TORTHAI, ">", "./dupescr") or die "Could not open script file dupescr: $!\n";
 open (LOGCHOMHAD, ">", "./dupelog") or die "Could not open log file dupelog: $!\n";
+#open (VIMDIFF, ">", "./dupevim") or die "Could not open script file dupevim: $!\n";
+print "Logs opened...\n";
 
 sub make_a_decision
 {
 	(my $docnum, my $cand, my $cosine) = @_;
-	if ($cosine > 0.97) {
+	if ($cosine > 0.999) {
 		print "sim($docnum,$cand)=$cosine\n";
 		print TORTHAI "dockill $cand\n";
+#		print VIMDIFF "vimdiff $crubadan/ciu/$docnum.txt $crubadan/ciu/$cand.txt\n";
 		my $url1;
 		my $url2;
-		open (INFO, "<", "$sonrai/$docnum.dat") or die "Could not open data file $docnum: $!\n";
+		open (INFO, "<", "$crubadan/sonrai/$docnum.dat") or die "Could not open data file $docnum: $!\n";
 		while (<INFO>) {
 			chomp;
 			if (m/^url: /) {
@@ -48,7 +52,7 @@ sub make_a_decision
 			}
 		}
 		close INFO;
-		open (INFO2, "<", "$sonrai/$cand.dat") or die "Could not open data file $cand: $!\n";
+		open (INFO2, "<", "$crubadan/sonrai/$cand.dat") or die "Could not open data file $cand: $!\n";
 		while (<INFO2>) {
 			chomp;
 			if (m/^url: /) {
@@ -61,9 +65,16 @@ sub make_a_decision
 	}
 }
 
-opendir DIRH, $base or die "could not open $base: $!\n";
-foreach my $doctxt (readdir DIRH) {
-	next if $doctxt !~ /\.txt$/;
+print "About to open MANIFEST...\n";
+open (MANIFEST, "<", "$crubadan/MANIFEST") or die "Could not open MANIFEST: $!\n";
+# opendir DIRH, $base or die "could not open $base: $!\n";
+# foreach my $doctxt (readdir DIRH) {
+$dummy = <MANIFEST>;  # eat num. lines
+print "Opened, numlines chomped, beginning to process tfidf files...\n";
+while (<MANIFEST>) {
+	chomp;
+	(my $dummy, my $doctxt) = m/^([^ ]+) ([0-9]+\.txt)$/;
+#	next if $doctxt !~ /\.txt$/;
 	(my $docnum) = $doctxt =~ /^([0-9]+)/;
 	$N++;
 	print "$N..." if ($N % 100 == 0);
@@ -78,13 +89,19 @@ foreach my $doctxt (readdir DIRH) {
 	}
 	close FOINSE;
 }
-closedir DIRH;
+#closedir DIRH;
+close MANIFEST;
 print "Done reading top-tens from tfidf files...\n";
 $N=0;
-print "Now rereading token files and looking for dupes...\n";
-opendir DIRH, $base or die "could not open $base: $!\n";
-foreach my $doctxt (readdir DIRH) {
-	next if $doctxt !~ /\.txt$/;
+print "Now rereading MANIFEST and looking for dupes...\n";
+open (MANIFEST, "<", "$crubadan/MANIFEST") or die "Could not open MANIFEST: $!\n";
+# opendir DIRH, $base or die "could not open $base: $!\n";
+# foreach my $doctxt (readdir DIRH) {
+$dummy = <MANIFEST>;  # eat num. lines
+while (<MANIFEST>) {
+	chomp;
+	(my $dummy, my $doctxt) = m/^([^ ]+) ([0-9]+\.txt)$/;
+#	next if $doctxt !~ /\.txt$/;
 	$N++;
 	print "$N..." if ($N % 100 == 0);
 	my $docnum = $doctxt;
@@ -126,8 +143,10 @@ foreach my $doctxt (readdir DIRH) {
 	}
 	close FOINSE;
 }
-closedir DIRH;
+close MANIFEST;
+#closedir DIRH;
 close TORTHAI;
 close LOGCHOMHAD;
+#close VIMDIFF;
 
 exit 0;
