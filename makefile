@@ -29,7 +29,7 @@ installhtml :
 	$(INSTALL_DATA) aimsigh.png ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
-	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https://listserv.heanet.ie/)'; rm -f PILLAGED.2)
+	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/)'; rm -f PILLAGED.2)
 
 preindices : FORCE
 	perl reamhinneacs NNN
@@ -44,9 +44,10 @@ preindices : FORCE
 killdupes : FORCE
 	rm -f dupescr dupelog
 	perl dupe.pl
-	`date` >> DUPELOG
-	cat dupelog >> DUPELOG
+	(echo; date; cat dupelog) >> DUPELOG
 	rm -f dupelog
+	sort -u dupescr > dupe.tmp
+	mv dupe.tmp dupescr
 	echo 'look at dupescr and then bash it to actually kill the dupes'
 
 cuard : cuard.o
