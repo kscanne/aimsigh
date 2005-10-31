@@ -22,6 +22,7 @@ install : all
 	$(INSTALL) seed $(bindir)/seed
 	$(INSTALL) ugrep $(bindir)/ugrep
 	$(INSTALL) urlkill $(bindir)/urlkill
+	$(INSTALL) urlsub $(bindir)/urlsub
 
 installhtml :
 	$(INSTALL_DATA) index.html ${HOME}/public_html/aimsigh
