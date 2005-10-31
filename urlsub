@@ -1,0 +1,15 @@
+#!/bin/bash
+if [ $# -ne 2 ]
+then
+	echo "Usage: urlsub SEARCH REPLACE"
+	echo "e.g. $ urlsub 'http://homepage.tinet.ie/' 'http://homepage.eircom.net/'"
+	echo "Only use basic regexn (for sed)"
+	exit 1
+fi
+cd /usr/local/share/crubadan/ga
+find sonrai -name '*.dat' | xargs egrep -l "^url: .*${1}" |
+while read x
+do
+	sed -i "/^url: /{s@${1}@${2}@}" $x
+done
+sed -i "s@${1}@${2}@" TOCRAWL
