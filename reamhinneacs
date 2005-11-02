@@ -3,18 +3,26 @@
 use strict;
 use warnings;
 use Lingua::GA::Stemmer;
+use Lingua::GA::Caighdean;
 
 if ($#ARGV != 0 or $ARGV[0] !~ m/^(?:NN|YY|YN)[YN]$/) {
 	print "Usage: reamhinneacs (YYY|YNY|YNN|YYN|NNY|NNN)\n";
 	exit 1;
 }
+binmode STDOUT, ":encoding(iso-8859-1)";
+binmode STDERR, ":encoding(iso-8859-1)";
+binmode STDIN, ":bytes";
 
 my $cineal = $ARGV[0];
 my $obj;
 if ($cineal =~ m/^YY/) {
 	$obj = new Lingua::GA::Stemmer;
 }
+elsif ($cineal eq 'NNY') {
+	$obj = new Lingua::GA::Caighdean(fix_spelling => 0);
+}
 else {
+	#  need "get_sentences" for NNN and "tokenize" for YNN, YNY
 	$obj = new Lingua::GA::Gramadoir;
 }
 
@@ -169,13 +177,40 @@ sub process_me
 {
 	(my $foinse, my $sprioc) = @_;
 	(my $docno) = $foinse =~ m/([0-9]+)\.txt$/;
-	open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
-	local $/;
-	my $text = <FOINSE>;
-	close FOINSE;
 	open (SPRIOC, ">", $sprioc) or die "Could not open target file $sprioc: $!\n";
-	my $sentencenum=1;
-	if ($cineal =~ m/^YY/) {
+	open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
+	if ($cineal =~ m/^NN/) {
+		local $/;
+		my $text = <FOINSE>;
+		close FOINSE;
+		my $sentencenum=1;
+		if ($cineal eq 'NNN') {
+			foreach (@{$obj->get_sentences($text)}) {
+				s/&quot;/"/g;
+				s/&lt;/</g;
+				s/&gt;/>/g;
+				s/&amp;/&/g;
+				print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n$_\n</DOC>\n";
+				$sentencenum++;
+			}
+		}
+		else {    # NNY
+			foreach (split /\n/,$obj->caighdean($text)) {
+				print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n".$_."\n</DOC>\n";
+				$sentencenum++;
+			}
+		}
+	}
+	else {
+		while (<FOINSE>) {  # now reading TREC file from NNN or NNY
+			die "Format error in TREC file $foinse\n" unless (/^<DOC>/);
+			print SPRIOC $_;
+			$_ = <FOINSE>;
+			print SPRIOC $_;   # <DOCNO>...
+			$_ = <FOINSE>;     # the sentence itself
+			chomp;
+			if ($cineal =~ m/^YY/) {
+				my $s = $obj->stem($_);  # should be 1 line
 		# strip mutation on the next line is needed because the
 		# stemmer is "too smart" - if a word is completely unknown
 		# it won't strip mutations at all.  This is smart for
@@ -184,41 +219,39 @@ sub process_me
 		# to make the equivalence relation defined by the 
 		# aimsigh.com stemming option strictly coarser than the
 		# "infhillte" option alone.
-		foreach my $s (split /\n/,$obj->stem($text)) {
-			print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n";
-			$sentencenum++;
-			while ($s =~ m/<[A-Z][^>]*>([^<]+)<\/[A-Z]>/g) {
-				my $tok = $1;
-				foreach (split / /,$tok) {  # "ar bith", etc.
-					print SPRIOC strip_mutation(lower_me($_))." ";
+				while ($s =~ m/<[A-Z][^>]*>([^<]+)<\/[A-Z]>/g) {
+					my $tok = $1;
+					foreach (split / /,$tok) {  # "ar bith", etc.
+						print SPRIOC strip_mutation(lower_me($_))." ";
+					}
 				}
 			}
-			print SPRIOC "\n</DOC>\n";
-		}
-	}
-	else {  # $cineal =~ m/^NN/ or /^YN/
-		my $sentences = $obj->get_sentences($text);
-		foreach my $s (@$sentences) {
-			print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n";
-			$sentencenum++;
-			my $tokes = $obj->tokenize($s);
-			foreach my $tok (@$tokes) {
-				$tok = lower_me($tok);
-				$tok = strip_mutation($tok) if ($cineal =~ m/^YN/);
-				print SPRIOC $tok." ";
+			else {  # $cineal eq 'YNN'  or 'YNY'
+				my $tokes = $obj->tokenize($_);
+				foreach my $tok (@$tokes) {
+					$tok = lower_me($tok);
+					$tok = strip_mutation($tok) if ($cineal =~ m/^YN/);
+					print SPRIOC $tok." ";
+				}
 			}
-			print SPRIOC "\n</DOC>\n";
-		}
+			print SPRIOC "\n";
+			$_ = <FOINSE>;
+			print SPRIOC $_;   # </DOC>...
+		}  # while (<FOINSE>)
 	}
 	close SPRIOC;
 }
 
-binmode STDOUT, ":encoding(iso-8859-1)";
-binmode STDERR, ":encoding(iso-8859-1)";
-binmode STDIN, ":bytes";
 
-my $base='/usr/local/share/crubadan/ga/ciu';
-$base='/snapshot/aimsigh/caighdean' if ($cineal =~ m/^..Y$/);
+my $base;
+if ($cineal =~ m/^NN/) {
+	$base='/usr/local/share/crubadan/ga/ciu';
+}
+else {
+	my $basedir=$cineal;
+	$basedir =~ s/^../NN/;
+	$base="/snapshot/aimsigh/$basedir";
+}
 my $range="/snapshot/aimsigh/$cineal";
 
 opendir DIRH, $base or die "could not open $base: $!\n";
