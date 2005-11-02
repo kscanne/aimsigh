@@ -167,10 +167,15 @@ sub strip_mutation
 
 sub process_me
 {
-	(my $text) = @_;
-	my %seen;
+	(my $foinse, my $sprioc) = @_;
+	(my $docno) = $foinse =~ m/([0-9]+)\.txt$/;
+	open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
+	local $/;
+	my $text = <FOINSE>;
+	close FOINSE;
+	open (SPRIOC, ">", $sprioc) or die "Could not open target file $sprioc: $!\n";
+	my $sentencenum=1;
 	if ($cineal =~ m/^YY/) {
-		my $ans = $obj->stem($text);  # not always lowercase
 		# strip mutation on the next line is needed because the
 		# stemmer is "too smart" - if a word is completely unknown
 		# it won't strip mutations at all.  This is smart for
@@ -179,29 +184,33 @@ sub process_me
 		# to make the equivalence relation defined by the 
 		# aimsigh.com stemming option strictly coarser than the
 		# "infhillte" option alone.
-		while ($ans =~ m/<[A-Z][^>]*>([^<]+)<\/[A-Z]>/g) {
-			my $tok = $1;
-			foreach (split / /,$tok) {
-				$seen{strip_mutation(lower_me($_))}++;
+		foreach my $s (split /\n/,$obj->stem($text)) {
+			print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n";
+			$sentencenum++;
+			while ($s =~ m/<[A-Z][^>]*>([^<]+)<\/[A-Z]>/g) {
+				my $tok = $1;
+				foreach (split / /,$tok) {  # "ar bith", etc.
+					print SPRIOC strip_mutation(lower_me($_))." ";
+				}
 			}
+			print SPRIOC "\n</DOC>\n";
 		}
 	}
 	else {  # $cineal =~ m/^NN/ or /^YN/
-		my $ans = $obj->tokenize($text);
-		foreach my $tok (@$ans) {
-			$tok = lower_me($tok);
-			$tok = strip_mutation($tok) if ($cineal =~ m/^YN/);
-			$seen{$tok}++;
+		my $sentences = $obj->get_sentences($text);
+		foreach my $s (@$sentences) {
+			print SPRIOC "<DOC>\n<DOCNO>$docno-$sentencenum</DOCNO>\n";
+			$sentencenum++;
+			my $tokes = $obj->tokenize($s);
+			foreach my $tok (@$tokes) {
+				$tok = lower_me($tok);
+				$tok = strip_mutation($tok) if ($cineal =~ m/^YN/);
+				print SPRIOC $tok." ";
+			}
+			print SPRIOC "\n</DOC>\n";
 		}
 	}
-	$text='';
-	foreach (sort keys %seen) {
-		unless (m/^(?:https?|ftp):\/\// or
-			m/^www\./) {   #  m/@/ or m/^[0-9]/ or m/^[^a-záéíóú]+$/({
-			$text .= "$_ $seen{$_}\n";
-		}
-	}
-	return $text;
+	close SPRIOC;
 }
 
 binmode STDOUT, ":encoding(iso-8859-1)";
@@ -212,11 +221,10 @@ my $base='/usr/local/share/crubadan/ga/ciu';
 $base='/snapshot/aimsigh/caighdean' if ($cineal =~ m/^..Y$/);
 my $range="/snapshot/aimsigh/$cineal";
 
-my $written=0;
 opendir DIRH, $base or die "could not open $base: $!\n";
 foreach my $doctxt (readdir DIRH) {
 	next if $doctxt !~ /\.txt$/;
-	print "Tokenizing document $doctxt for $cineal index...\n";
+	print "Processing document $doctxt for $cineal index...\n";
 	my $sprioc = "$range/$doctxt";
 	my $foinse = "$base/$doctxt";
 	my $doit = 0;
@@ -224,23 +232,13 @@ foreach my $doctxt (readdir DIRH) {
 		my @stat1 = stat($foinse);
 		my @stat2 = stat($sprioc);
 		$doit = ($stat1[9] > $stat2[9]);
-		print "Tokenizing (out of date)...\n" if $doit;
+		print "Processing (out of date)...\n" if $doit;
 	}
 	else {
 		$doit=1;
-		print "Tokenizing (first time)...\n";
+		print "Processing (first time)...\n";
 	}
-	if ($doit) {
-		open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
-		local $/;
-		$_ = <FOINSE>;
-		close FOINSE;
-		open (SPRIOC, ">", $sprioc) or die "Could not open target file $sprioc: $!\n";
-		print SPRIOC process_me($_);
-		close SPRIOC;
-		$written++;
-#		exit 0 if ($written==100);
-	}
+	process_me($foinse, $sprioc) if ($doit);
 }
 closedir DIRH;
 exit 0;
