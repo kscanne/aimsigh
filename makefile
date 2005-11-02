@@ -30,7 +30,7 @@ installhtml :
 	$(INSTALL_DATA) aimsigh.png ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
-	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/)'; rm -f PILLAGED.2)
+	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo)'; rm -f PILLAGED.2)
 
 preindices : FORCE
 	perl reamhinneacs NNN
