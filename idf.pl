@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
 # computes tfidf weightings for all terms in all files
-# and writes them in the TFIDF directory -- see Jurafsky-Martin p.653
+#  Reads from FREQ directory, computes, and writes to
+#  TFIDF directory -- see Jurafsky-Martin p.653 for details
 
 use strict;
 use warnings;
@@ -10,7 +11,7 @@ binmode STDOUT, ":encoding(iso-8859-1)";
 binmode STDERR, ":encoding(iso-8859-1)";
 binmode STDIN, ":bytes";
 
-my $base='/snapshot/aimsigh/NNN';
+my $base='/snapshot/aimsigh/FREQ';
 my %bighash;
 my $N;
 
@@ -32,9 +33,6 @@ print "Done reading token files; computing logs...\n";
 foreach (keys %bighash) {
 	$bighash{$_} = log($N/$bighash{$_});
 }
-#open(OUTPUT, ">", "/snapshot/aimsigh/IDF.txt") or die "could not open output file: $!\n";
-#print OUTPUT "$bighash{$_} $_\n" foreach (sort {$bighash{$b} <=> $bighash{$a}} keys %bighash);
-#close OUTPUT;
 $N=0;
 my $range = '/snapshot/aimsigh/TFIDF';
 print "Now rereading token files and computing tfidf...\n";
