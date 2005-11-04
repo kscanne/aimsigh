@@ -257,7 +257,7 @@ my $range="/snapshot/aimsigh/$cineal";
 opendir DIRH, $base or die "could not open $base: $!\n";
 foreach my $doctxt (readdir DIRH) {
 	next if $doctxt !~ /\.txt$/;
-	print "Processing document $doctxt for $cineal index...\n";
+#	print "Processing document $doctxt for $cineal index...\n";
 	my $sprioc = "$range/$doctxt";
 	my $foinse = "$base/$doctxt";
 	my $doit = 0;
@@ -265,11 +265,11 @@ foreach my $doctxt (readdir DIRH) {
 		my @stat1 = stat($foinse);
 		my @stat2 = stat($sprioc);
 		$doit = ($stat1[9] > $stat2[9]);
-		print "Processing (out of date)...\n" if $doit;
+		print "Processing $doctxt (out of date)...\n" if $doit;
 	}
 	else {
 		$doit=1;
-		print "Processing (first time)...\n";
+		print "Processing $doctxt (first time)...\n";
 	}
 	process_me($foinse, $sprioc) if ($doit);
 }

@@ -27,22 +27,24 @@ binmode STDIN, ":bytes";
 my $base='/usr/local/share/crubadan/ga/ciu';
 my $range="/snapshot/aimsigh/FREQ";
 
+my $N = 0;
 opendir DIRH, $base or die "could not open $base: $!\n";
 foreach my $doctxt (readdir DIRH) {
 	next if $doctxt !~ /\.txt$/;
-	print "Tokenizing document $doctxt for dupefinder...\n";
 	my $sprioc = "$range/$doctxt";
 	my $foinse = "$base/$doctxt";
 	my $doit = 0;
+	$N++;
+	print "$N..." if ($N % 100 == 0);
 	if (-e $sprioc) {
 		my @stat1 = stat($foinse);
 		my @stat2 = stat($sprioc);
 		$doit = ($stat1[9] > $stat2[9]);
-		print "Tokenizing (out of date)...\n" if $doit;
+		print "Tokenizing $doctxt (out of date)...\n" if $doit;
 	}
 	else {
 		$doit=1;
-		print "Tokenizing (first time)...\n";
+		print "Tokenizing $doctxt (first time)...\n";
 	}
 	if ($doit) {
 		open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
