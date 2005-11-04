@@ -4,9 +4,11 @@ use strict;
 use warnings;
 use utf8;
 use Encode qw(from_to);
+use integer;   # page calcs, "kb" calc
 
 binmode STDOUT, ":utf8";
 my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
+my $sonrai='/usr/local/share/crubadan/ga/sonrai';
 
 # this is the central hub that runs the whole search process from
 # query (input on command line from cgi) to returned html
@@ -23,6 +25,25 @@ my $options = $ARGV[1];
 # third is the number of results seen on earlier pages
 my $seen = $ARGV[2];
 
+sub cruthaigh_sliocht
+{
+	(my $inp) = @_;
+	(my $docId, my $sliocht) = $inp =~ m/^([0-9]+): (.*)$/;
+	open(SONRAI, "<", "$sonrai/$docId.dat") or die "Could not open data file $docId: $!\n";
+	my %hash;
+	while (<SONRAI>) {
+		chomp;
+		m/^([^:]+): (.*)$/;	
+		$hash{$1} = $2;
+	}
+	$hash{'size'} = 1+$hash{'size'}/1024;
+	print "[".$hash{'format'}."]&nbsp;" unless ($hash{'format'} eq 'html');
+	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\">".$hash{'title'}."</a></span><br>\n";
+	print "<span class=\"beag\">$sliocht</span><br>\n";
+	$hash{'url'} =~ s/^[a-z]+:\/\///;
+	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k -</span> <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I dTaisce</a></span><br><br>";
+}
+
 # first, send query to yacc for parse
 # and to berkeley db program to load and search indices
 # these return a list of doc numbers
@@ -33,29 +54,26 @@ local *PIPE;
 my $pid = open PIPE, "-|";
 die "Theip ar dhéanamh an fhorc: $!" unless defined $pid;
 unless ( $pid ) {
-	exec '/usr/local/bin/cuard', @ARGV or die 'Ní féidir píopa a oscailt: $!';
+	exec '/usr/local/bin/cuard', $ARGV[0], $ARGV[1] or die "Ní féidir píopa a oscailt: $!\n";
 }
 
-# read a list of corpus filename 100000..999999
+# read a list of corpus filename 100000..999999 + sliochta� read from NNN db
 my @matches = <PIPE>;
 close PIPE;
 my $num = scalar @matches;
 my $start = $seen + 1;
 my $end = $seen + 10;  # ten results per page
 $end = $num if ($num < $end);
-
-
-# Now RANK them somehow.
-# Ideas: store "pagerank"-style link counts in a small db and use
-# those to keep a global ordering on docs.  Can also keep 8 parallel
-# indices which only track "prominent" terms from docs; words in title,
-# descr, H1, keywords, higher-than-expected terms, first 20 words.
-
+my $lastpagetotal = 1 + ($num-1)/10;
 
 # Finally, output first page of HTML
 my $neamhfoirm='';
-$neamhfoirm='<input type="hidden" name="neamhchaighdean" value="neamhchaighdean">' if ($options =~ /Y$/);
-(my $claoch, my $neamh) = $options =~ m/^(..)(.)$/;
+my $neamh='';
+if ($options =~ /Y$/) {
+	$neamhfoirm='<input type="hidden" name="neamhchaighdean" value="neamhchaighdean">';
+	$neamh='&neamhchaighdean';
+}
+(my $claoch) = $options =~ m/^(..)(.)$/;
 print <<HEADER;
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
         "http://www.w3.org/TR/html4/strict.dtd">
@@ -80,35 +98,44 @@ print <<HEADER;
 HEADER
 
 
-print "Torthaí $start - $end as $num á dtaispeáint:\n";
-### PUT RESULTS HERE
+if ($num == 0) {
+	print "Níor aimsíodh d'iarratas i gcáipéis ar bith.<br><br>\n";
+}
+else {
+	print "<b>Torthaí $start - $end as $num á dtaispeáint:</b><br>\n";
 
-my $currpage = 1 + $seen/10;
-my $firstlinkedpage = $currpage-10;
-$firstlinkedpage = 1 if ($firstlinkedpage < 1);
-my $lastlinkedpage = $currpage+9;
-my $newseen;
-print "<p class=\"laraithe\">Leathanach:&nbsp;&nbsp;&nbsp;&nbsp;\n";
-if ($firstlinkedpage > 1) {
-	$newseen=$seen-10;
-	print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\"><b>Siar</b></a>\n";
-}
-for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
-	if ($leathanach == $currpage) {
-		print "<b>$leathanach</b>\n";
+	cruthaigh_sliocht($matches[$_-1]) for ($start..$end);
+	my $currpage = 1 + $seen/10;
+	my $firstlinkedpage = $currpage-10;
+	$firstlinkedpage = 1 if ($firstlinkedpage < 1);
+	my $lastlinkedpage = $currpage+9;
+	$lastlinkedpage = $lastpagetotal if ($lastlinkedpage > $lastpagetotal);
+	my $newseen;
+	print "<p class=\"laraithe\">Leathanach:&nbsp;&nbsp;&nbsp;&nbsp;\n";
+	if ($firstlinkedpage > 1) {
+		$newseen=$seen-10;
+		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
 	}
-	else {
-		$newseen=10*($leathanach-1);
-		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\">$leathanach</a>\n";
+	for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
+		if ($leathanach == $currpage) {
+			print "<b>$leathanach</b>\n";
+		}
+		else {
+			$newseen=10*($leathanach-1);
+			print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\">$leathanach</a>\n";
+		}
 	}
+	$newseen=$seen+10;
+	if ($currpage < $lastpagetotal) {
+		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Ar Aghaidh</b></a>\n";
+	}
+	print "</p>\n";
 }
-$newseen=$seen+10;
-print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch&neamhchaighdean=$neamh\"><b>Ar Aghaidh</b></a>\n</p>";
 
 
 print <<FOOTER;
     <hr>
-    <p class="beag">Cóipcheart © 2005 <a href="/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
+    <p class="anbheag">Cóipcheart © 2005 <a href="/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
   </body>
 </html>
 FOOTER
