@@ -11,8 +11,18 @@ img.nasctha {
 	border-style:none;
 	border-width:0px;
 }
-.beag {
+.anbheag {
 	font-size: 0.7em;
+}
+.beag {
+	font-size: 0.9em;
+}
+.uainebeag {
+	font-size: 0.9em;
+	color: #008000;
+}
+.mor {
+	font-size: 1.2em;
 }
 .laraithe {
 	text-align: center;
