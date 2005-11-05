@@ -44,8 +44,6 @@ close PIPE;
 
 my @docs = sort {$hits{$a} <=> $hits{$b}} keys %hits;  # => sort by page rank!
 
-foreach (@docs) {
-	print "$_\n";
-}
-
+print "$total\n";
+print "$_\n" foreach (@docs);
 exit 0;
