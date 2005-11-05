@@ -43,14 +43,6 @@ process_line($_) while (<PIPE>);
 close PIPE;
 
 my @docs = sort {$hits{$a} <=> $hits{$b}} keys %hits;  # => sort by page rank!
-#my $nnn_query='';
-#$nnn_query .= "[cache:$hits{$_}]\n" foreach (@docs);
-
-#my $pid2 = open PIPE, "-|";
-#die "Fork failed: $!" unless defined $pid2;
-#unless ( $pid2 ) {
-#	exec "echo \"$nnn_query\" | /usr/local/bin/zet -f $dbdir/NNN" or die "Could not open a pipe: $!\n";
-#}
 
 foreach (@docs) {
 	print "$_\n";
