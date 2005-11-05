@@ -36,6 +36,7 @@ my $end=$N-1;
 my @pr;
 push @linktome, [] for (0..$end);
 push @pr, 1/$N for (0..$end);   # will be overwritten below
+my $prtotal=0;
 
 my $htmldocs=0;
 my $all=0;
@@ -58,6 +59,7 @@ foreach my $docId (@docIds) {
 		if (m/^pagerank: /) {
 			$pre_pr = $_;
 			$pre_pr =~ s/^pagerank: //;
+			$prtotal += $pre_pr;
 		}
 	}
 	close DOCDATA;
@@ -85,6 +87,11 @@ foreach my $docId (@docIds) {
 	push(@sinks, $col) if ($linksout[$col]==0);
 }
 print "Processed $N Irish documents ($htmldocs in HTML); found $all Irish-to-Irish links...\n";
+#  need to add slosh b/c documents sometimes get 'dockill'ed, which 
+#  substracts their probabilities from the total mass...
+my $slosh=(1-$prtotal)/$N;
+$pr[$_] += $slosh for (0..$end);
+print "Added $slosh to each to ensure a probability measure...\n";
 
 # Now compute page rank
 print "Beginning page rank calculation...\n";
