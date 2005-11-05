@@ -8,7 +8,8 @@ use integer;   # page calcs, "kb" calc
 
 binmode STDOUT, ":utf8";
 my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
-my $sonrai='/usr/local/share/crubadan/ga/sonrai';
+my $crub='/usr/local/share/crubadan/ga';
+my $snapshot='/snapshot/aimsigh';
 
 # this is the central hub that runs the whole search process from
 # query (input on command line from cgi) to returned html
@@ -17,6 +18,9 @@ my $sonrai='/usr/local/share/crubadan/ga/sonrai';
 my $query = $ARGV[0];
 my $qhtml = $query;
 from_to($qhtml,"UTF-8","ISO-8859-1");  # double-encoded, so really the result is utf-8 encoded
+my $flattened = $qhtml;
+#  convert to big OR of regexen
+my $patt = qr/$flattened/;
 
 # Second is a string matching ^[YN]{3}$, indicating which of the
 # options on the front page are selected
@@ -25,11 +29,46 @@ my $options = $ARGV[1];
 # third is the number of results seen on earlier pages
 my $seen = $ARGV[2];
 
-sub cruthaigh_sliocht
+sub bain_sliocht_as
 {
-	(my $inp) = @_;
-	(my $docId, my $sliocht) = $inp =~ m/^([0-9]+): (.*)$/;
-	open(SONRAI, "<", "$sonrai/$docId.dat") or die "Could not open data file $docId: $!\n";
+	(my $docId) = @_;
+	my $sliocht='Gan sliocht';
+	my $line=-1;
+	open(SONRAI, "<", "$snapshot/$options/$docId.txt") or die "Could not tokenized file $options/$docId.txt: $!\n";
+	while (<SONRAI>) {
+		if (/$patt/) {
+			chomp;
+			$sliocht=$_;
+			$line=$.;
+			last;
+		}
+	}
+	close SONRAI;
+	if ($options ne 'NNN') {
+		open(CLEAN, "<", "$snapshot/NNN/$docId.txt") or die "Could not tokenized file NNN/$docId.txt: $!\n";
+		while (<CLEAN>) {
+			if ($. == $line) {
+				chomp;
+				$sliocht=$_;
+				last;
+			}
+		}
+		close CLEAN;
+	}
+	#  now clean it up
+	$sliocht =~ s/----+/---/g;
+	if (length($sliocht) > 158) {
+		$sliocht = substr($sliocht,0,156)."...";
+	}
+
+	return $sliocht;
+}
+
+sub cruthaigh_toradh
+{
+	(my $docId) = @_;
+	my $sliocht = bain_sliocht_as($docId);
+	open(SONRAI, "<", "$crub/sonrai/$docId.dat") or die "Could not open data file $docId: $!\n";
 	my %hash;
 	while (<SONRAI>) {
 		chomp;
@@ -57,8 +96,8 @@ unless ( $pid ) {
 	exec '/usr/local/bin/cuard', $ARGV[0], $ARGV[1] or die "Ní féidir píopa a oscailt: $!\n";
 }
 
-# read a list of corpus filename 100000..999999 + sliochta� read from NNN db
-my @matches = <PIPE>;
+# reads a list of corpus filenames 100000..999999
+chomp(my @matches = <PIPE>);
 close PIPE;
 my $num = scalar @matches;
 my $start = $seen + 1;
@@ -102,35 +141,38 @@ if ($num == 0) {
 	print "Níor aimsíodh d'iarratas i gcáipéis ar bith.<br><br>\n";
 }
 else {
-	print "<b>Torthaí $start - $end as $num á dtaispeáint:</b><br>\n";
+	print "<b>Tagairtí $start - $end as $num á dtaispeáint:</b><br>\n";
 
-	cruthaigh_sliocht($matches[$_-1]) for ($start..$end);
-	my $currpage = 1 + $seen/10;
-	my $firstlinkedpage = $currpage-10;
-	$firstlinkedpage = 1 if ($firstlinkedpage < 1);
-	my $lastlinkedpage = $currpage+9;
-	$lastlinkedpage = $lastpagetotal if ($lastlinkedpage > $lastpagetotal);
-	my $newseen;
-	print "<p class=\"laraithe\">Leathanach:&nbsp;&nbsp;&nbsp;&nbsp;\n";
-	if ($firstlinkedpage > 1) {
-		$newseen=$seen-10;
-		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
-	}
-	for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
-		if ($leathanach == $currpage) {
-			print "<b>$leathanach</b>\n";
+	cruthaigh_toradh($matches[$_-1]) for ($start..$end);
+
+	unless ($lastpagetotal == 1) {
+		my $currpage = 1 + $seen/10;
+		my $firstlinkedpage = $currpage-10;
+		$firstlinkedpage = 1 if ($firstlinkedpage < 1);
+		my $lastlinkedpage = $currpage+9;
+		$lastlinkedpage = $lastpagetotal if ($lastlinkedpage > $lastpagetotal);
+		my $newseen;
+		print "<p class=\"laraithe\"><b>Leathanach:</b>&nbsp;&nbsp;&nbsp;&nbsp;\n";
+		if ($firstlinkedpage > 1) {
+			$newseen=$seen-10;
+			print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
 		}
-		else {
-			$newseen=10*($leathanach-1);
-			print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\">$leathanach</a>\n";
+		for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
+			if ($leathanach == $currpage) {
+				print "<b>$leathanach</b>\n";
+			}
+			else {
+				$newseen=10*($leathanach-1);
+				print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\">$leathanach</a>\n";
+			}
 		}
-	}
-	$newseen=$seen+10;
-	if ($currpage < $lastpagetotal) {
-		print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Ar Aghaidh</b></a>\n";
-	}
-	print "</p>\n";
-}
+		$newseen=$seen+10;
+		if ($currpage < $lastpagetotal) {
+			print "<a href=\"$cgi?ionchur=$query&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Ar Aghaidh</b></a>\n";
+		}
+		print "</p>\n";
+	}  # if more than one page
+}  # if at least one hit
 
 
 print <<FOOTER;
