@@ -13,7 +13,6 @@ crubadandir = $(datadir)/crubadan/ga
 
 install :
 	$(MAKE) installhtml
-	$(INSTALL) aimsigh $(bindir)/aimsigh
 	$(INSTALL) aimsigh.cgi /home/httpd/cgi-bin
 	$(INSTALL) cuard $(bindir)/cuard
 	$(INSTALL) dockill $(bindir)/dockill
@@ -26,6 +25,7 @@ installhtml :
 	$(INSTALL_DATA) index.html ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) aimsigh.css ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) aimsigh.png ${HOME}/public_html/aimsigh
+	$(INSTALL_DATA) favicon.ico ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
 	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary)'; rm -f PILLAGED.2)
