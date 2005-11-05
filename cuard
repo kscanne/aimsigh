@@ -1,0 +1,59 @@
+#!/usr/bin/perl
+#   This is the "Zettair" wrapper.   Want to wrap all conventions
+#  peculiar to zettair inside this script so I can swap out another
+#  indexer at a later date.
+
+die "Usage: cuard QUERY TYPE\n" if ($#ARGV != 1);
+my $query = $ARGV[0];
+my $cineal = $ARGV[1];
+my $dbdir = '/home/kps/seal/inneacs';
+
+local *PIPE;
+
+my $pid = open PIPE, "-|";
+die "Fork failed: $!" unless defined $pid;
+unless ( $pid ) {
+	exec "echo \"$query\" | /usr/local/bin/zet -f $dbdir/$cineal -n 500" or die "Could not open a pipe: $!\n";
+}
+
+
+my %hits;
+my $total;
+
+sub process_line
+{
+	(my $line) = @_;
+	(my $docId, my $zindex) = $line =~ m/^[0-9]+\. ([0-9]+) .+, docid ([0-9]+)\)/;
+
+	if ($docId and $zindex) {
+		$hits{$docId}=$zindex;
+	}
+	else {
+		if ($line =~ m/ results of /) {
+			($total) = $line =~ m/ results of ([0-9]+) shown/;
+		}
+	}
+}
+
+# lines of zettair output; need parsing
+my $line = <PIPE>;   # first line has extra "> "
+$line =~ s/^> //;
+process_line($line);
+process_line($_) while (<PIPE>);
+close PIPE;
+
+my @docs = sort {$hits{$a} <=> $hits{$b}} keys %hits;  # => sort by page rank!
+#my $nnn_query='';
+#$nnn_query .= "[cache:$hits{$_}]\n" foreach (@docs);
+
+#my $pid2 = open PIPE, "-|";
+#die "Fork failed: $!" unless defined $pid2;
+#unless ( $pid2 ) {
+#	exec "echo \"$nnn_query\" | /usr/local/bin/zet -f $dbdir/NNN" or die "Could not open a pipe: $!\n";
+#}
+
+foreach (@docs) {
+	print "$_\n";
+}
+
+exit 0;
