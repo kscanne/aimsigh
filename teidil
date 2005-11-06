@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /usr/local/share/crubadan/ga
+find sonrai -name '*.dat' | sed 's/^sonrai\/\([0-9]*\)\.dat$/\1/' | prsort.pl | sed 's/.*/sonrai\/&.dat/' | xargs egrep '^title: ' | egrep -v 'title: Gan teideal' | sed 's/^sonrai\/\([0-9]*\)\.dat:title: \(.*\)/<DOC>\n<DOCNO>\1<\/DOCNO>\n\2\n<\/DOC>/' > TEIDIL
