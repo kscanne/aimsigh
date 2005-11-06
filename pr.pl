@@ -94,33 +94,27 @@ $pr[$_] += $slosh for (0..$end);
 print "Added $slosh to each to ensure a probability measure...\n";
 
 # Now compute page rank
-print "Beginning page rank calculation...\n";
+print "Beginning one iteration of page rank calculation...\n";
 
-for my $iteration (0..2) {
-	print "it=$iteration\n";
-	my @newpr;
-	for my $i (0..$end) {
-		print "it=$iteration, row $i of $end\n";
-		$newpr[$i]=0;
-		for my $j (0..$end) {
-			$newpr[$i] += $pr[$j]*$q/$N;
-		}
-		for my $j (@sinks) {
-			$newpr[$i] += $pr[$j]*(1-$q)/$N;
-		}
-		for my $j (@{$linktome[$i]}) {
-			$newpr[$i] += $pr[$j]*(1-$q)/$linksout[$j];
-		}
+my @newpr;
+for my $i (0..$end) {
+	print "row $i/$end\n" if ($i % 100 == 0);
+	$newpr[$i]=0;
+	for my $j (0..$end) {
+		$newpr[$i] += $pr[$j]*$q/$N;
 	}
-	@pr = @newpr;
-	print "pr=(";
-	print "$_," foreach (@pr);
-	print ")\n";
+	for my $j (@sinks) {
+		$newpr[$i] += $pr[$j]*(1-$q)/$N;
+	}
+	for my $j (@{$linktome[$i]}) {
+		$newpr[$i] += $pr[$j]*(1-$q)/$linksout[$j];
+	}
 }
 
 open(SCR, ">", "./scr") or die "Could not open output script: $!\n";
 for my $i (0..$end) {
-	print SCR "sed -i '/^pagerank/s/.*/$pr[$i]/' $base/sonrai/$docIds[$i].dat";
+	print SCR "echo $i\n" if ($i % 100 == 0);
+	print SCR "sed -i '/^pagerank/s/.*/pagerank: $newpr[$i]/' $base/sonrai/$docIds[$i].dat\n";
 }
 close SCR;
 
