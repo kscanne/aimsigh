@@ -1,0 +1,16 @@
+#!/bin/bash
+
+do_one()
+{
+rm -f "$1.map" "$1.v.0"
+find /snapshot/aimsigh/$1 -name '*.txt' | sed "s/^\/snapshot\/aimsigh\/$1\/\([0-9]*\)\.txt$/\1/" | prsort.pl | sed "s/.*/\/snapshot\/aimsigh\/$1\/&.txt/" | zet -i -t TREC -f "$1"
+chmod 666 "$1.map" "$1.v.0"
+}
+
+cd /home/kps/seal/inneacs
+do_one NNN
+do_one YNN
+do_one YYN
+do_one NNY
+do_one YNY
+do_one YYY
