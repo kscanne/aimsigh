@@ -20,6 +20,8 @@ install :
 	$(INSTALL) ugrep $(bindir)/ugrep
 	$(INSTALL) urlkill $(bindir)/urlkill
 	$(INSTALL) urlsub $(bindir)/urlsub
+	$(INSTALL) prsort.pl $(bindir)/prsort.pl
+	$(INSTALL) swishy.pl $(bindir)/swishy.pl
 
 installhtml :
 	$(INSTALL_DATA) index.html ${HOME}/public_html/aimsigh
