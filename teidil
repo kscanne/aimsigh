@@ -1,3 +1,9 @@
 #!/bin/bash
+##    ZETTAIR ONLY
 cd /usr/local/share/crubadan/ga
 find sonrai -name '*.dat' | sed 's/^sonrai\/\([0-9]*\)\.dat$/\1/' | prsort.pl | sed 's/.*/sonrai\/&.dat/' | xargs egrep '^title: ' | egrep -v 'title: Gan teideal' | sed 's/^sonrai\/\([0-9]*\)\.dat:title: \(.*\)/<DOC>\n<DOCNO>\1<\/DOCNO>\n\2\n<\/DOC>/' > TEIDIL
+sed -i -r '/^<\/?DOC/!{s/^(([^ ]*  *){7}).*/\1/}' TEIDIL # keep at most 7 words 
+cd /home/kps/seal/inneacs
+rm -f TEIDIL.map TEIDIL.v.0
+zet -i -t TREC -f TEIDIL /usr/local/share/crubadan/ga/TEIDIL
+chmod 666 TEIDIL.map TEIDIL.v.0
