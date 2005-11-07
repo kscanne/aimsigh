@@ -207,7 +207,7 @@ if ($num == 0) {
 }
 else {
 	print "<b>Tagairtí $start - $end as ";
-	print "níos mó ná " if ($iomlan == 20000);  # zettair-specific
+#	print "níos mó ná " if ($iomlan == 20000);  # zettair-specific
 	print "$iomlan á dtaispeáint:</b><br>\n";
 
 	cruthaigh_toradh($matches[$_-1]) for ($start..$end);
