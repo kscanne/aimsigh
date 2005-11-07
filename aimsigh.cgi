@@ -3,7 +3,8 @@
 use strict;
 use CGI;
 use utf8;
-use Encode qw(from_to);
+use Encode qw(from_to decode encode);
+use SWISH::API;
 use integer;   # page calcs, "kb" calc
 
 $CGI::DISABLE_UPLOADS = 1;
@@ -26,6 +27,10 @@ print $q->header(-type=>"text/html", -charset=>'utf-8');
 
 bail_out unless (defined($q->param( "ionchur" )));
 my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
+$ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
+
+bail_out unless ( $ionchur );
+$ionchur =~ s/'/\'/g;
 
 
 bail_out unless (defined($q->param( "claochlu" )));
@@ -45,9 +50,6 @@ else {
 	$inneacs .= 'N';
 }
 
-bail_out unless ( $ionchur );
-
-$ionchur =~ s/'/\'/g;
 
 ############################################################################
 #  End of CGI stuff; rest of code is for sending query to cuard,
@@ -60,7 +62,7 @@ my $snapshot='/snapshot/aimsigh';
 # There are three command line args:
 # First is the query itself, from the search box:
 my $qhtml = $ionchur;
-from_to($qhtml,"UTF-8","ISO-8859-1");  # double-encoded, so really the result is utf-8 encoded
+#from_to($qhtml,"UTF-8","ISO-8859-1");  # double-encoded, so really the result is utf-8 encoded
 my $flattened = $qhtml;
 #  convert to big OR of regexen
 my $patt = qr/$flattened/;
@@ -130,39 +132,48 @@ sub cruthaigh_toradh
 #     Start of main program - call search engine to get candidate docs
 #######################################################################
 
-local *PIPE;
+sub cuardach {
+	(my $query, my $cineal, my $href, my $aref) = @_;
 
-my $pid = open PIPE, "-|";
-die "Theip ar dhéanamh an fhorc: $!" unless defined $pid;
-unless ( $pid ) {
-	exec '/usr/local/bin/cuard', $ionchur, 'TEIDIL' or die "Ní féidir píopa a oscailt: $!\n";
+	my $sw = SWISH::API->new( "/home/kps/seal/inneacs/$cineal.index" );
+	$sw->AbortLastError if $sw->Error;
+
+	open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
+	print FUN "Q=$query\nC=$cineal\n\n";
+	close FUN;
+
+	my $results = $sw->Query( $query );
+	my %hits;
+	my $count = 0;
+
+	while ( my $result = $results->NextResult ) {
+		my $title=$result->Property( "swishdocpath" );
+		$title =~ /^([0-9]+)-([0-9]+)$/;
+		$hits{$2}=$1;
+		$count++;
+		last if ($count==500);
+	}
+
+	if ($cineal eq 'TEIDIL') {
+		foreach (sort {$hits{$a} <=> $hits{$b}} keys %hits) {
+			$href->{$_}++;
+			push @$aref, $_;
+		}
+	}
+	else {
+		foreach (sort {$hits{$a} <=> $hits{$b}} keys %hits) {
+			push @$aref, $_ unless (exists($href->{$_}));
+		}
+	}
+	return $results->Hits;
 }
+
+
 my %match_hash;
 my @matches;
-# "cuard" returns the number of hits, and then a list of corpus
-# filenames 100000..999999 one per line
-my $iomlan = <PIPE>;   # number of title hits; ignorable
-while (<PIPE>) {
-	chomp;
-	$match_hash{$_}++;
-	push @matches, $_;
-}
-close PIPE;
-
-
-my $pid2 = open PIPE, "-|";
-die "Theip ar dhéanamh an fhorc: $!" unless defined $pid2;
-unless ( $pid2 ) {
-	exec '/usr/local/bin/cuard', $ionchur, $inneacs or die "Ní féidir píopa a oscailt: $!\n";
-}
-$iomlan = <PIPE>;   # number of hits for reporting
-while (<PIPE>) {
-	chomp;
-	push @matches, $_ unless (exists($match_hash{$_}));
-}
-close PIPE;
-
-#######################################################################
+my $topipe = encode("ISO-8859-1", $ionchur);
+cuardach($topipe, 'TEIDIL', \%match_hash, \@matches);  # ignore return
+my $iomlan = cuardach($topipe, $inneacs, \%match_hash, \@matches);
 my $num = scalar @matches;
 my $start = $feicthe + 1;
 my $end = $feicthe + 10;  # ten results per page
