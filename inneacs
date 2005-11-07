@@ -2,15 +2,27 @@
 
 do_one()
 {
-rm -f "$1.map" "$1.v.0"
-find /snapshot/aimsigh/$1 -name '*.txt' | sed "s/^\/snapshot\/aimsigh\/$1\/\([0-9]*\)\.txt$/\1/" | prsort.pl | sed "s/.*/\/snapshot\/aimsigh\/$1\/&.txt/" | zet -i -t TREC -f "$1"
-chmod 666 "$1.map" "$1.v.0"
+#  ZETTAIR
+#rm -f "$1.map" "$1.v.0"
+#find /snapshot/aimsigh/$1 -name '*.txt' | sed "s/^\/snapshot\/aimsigh\/$1\/\([0-9]*\)\.txt$/\1/" | prsort.pl | sed "s/.*/\/snapshot\/aimsigh\/$1\/&.txt/" | zet -i -t TREC -f "$1"
+#chmod 666 "$1.map" "$1.v.0"
+#if [ $1 = "TEIDIL" ]
+#then
+#	bash teidil
+#fi
+
+#  SWISH-E
+rm -f "$1.index" "$1.index.prop"
+swish-e -c $1.conf -f $1.tmp -S prog -v 3
+mv -f $1.tmp $1.index
+mv -f $1.tmp.prop $1.index.prop
 }
 
 cd /home/kps/seal/inneacs
+do_one TEIDIL
 do_one NNN
 do_one YNN
-do_one YYN
-do_one NNY
-do_one YNY
-do_one YYY
+#do_one YYN
+#do_one NNY
+#do_one YNY
+#do_one YYY
