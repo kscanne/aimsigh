@@ -17,12 +17,11 @@ while (<STDIN>) {
 		$doc .= $_ unless /^<\/DOC>$/;
 	}
 	my $size = length $doc;
-	print "Path-Name: $count-pr\n";
+	print "Path-Name: $count-$docId\n";
 	print "Content-Length: $size\n";
 	print "Document-Type: TXT*\n";
 	print "\n";
 	print $doc;
 	$count++;
 }
-closedir DIRH;
 exit 0;
