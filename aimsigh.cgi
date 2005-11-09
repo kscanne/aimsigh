@@ -12,6 +12,7 @@ $CGI::POST_MAX        = 1024;
 $ENV{PATH}="/bin:/usr/bin";
 delete @ENV{ 'IFS', 'CDPATH', 'ENV', 'BASH_ENV' };
 
+# key to guarantee that each (latin-1) sliocht is written to html doc in utf8
 binmode STDOUT, ":utf8";
 
 sub bail_out
@@ -52,7 +53,7 @@ else {
 
 
 ############################################################################
-#  End of CGI stuff; rest of code is for sending query to cuard,
+#  End of CGI stuff; rest of code is for sending query to swish-e,
 #  and then generating HTML from the results
 
 my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
