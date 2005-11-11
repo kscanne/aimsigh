@@ -29,6 +29,19 @@ print $q->header(-type=>"text/html", -charset=>'utf-8');
 bail_out unless (defined($q->param( "ionchur" )));
 my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
 $ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
+# important in particular to kill chars that are special to 
+# swish-e search that we don't want to support: *,= esp.
+# also stuff like shell metachars for safety (even though we're now
+# not using any external programs!)   ISO-8859-1 ONLY!
+$ionchur =~ s/[^0-9a-zA-ZàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ ()"'-]/ /g;
+#  translate aimsigh search syntax to swish-e
+$ionchur =~ s/([ ()"])[Aa][Nn][Dd]([ ()"])/$1 "and" $2/g;
+$ionchur =~ s/([ ()"])[Oo][Rr]([ ()"])/$1 "or" $2/g;
+$ionchur =~ s/([ ()"])[Nn][Oo][Tt]([ ()"])/$1 "not" $2/g;
+$ionchur =~ s/([ )])AGUS([( ])/$1AND$2/g;
+$ionchur =~ s/([ )])NÓ([( ])/$1OR$2/g;
+$ionchur =~ s/([ ()"])GAN([( ])/$1NOT$2/g;
+$ionchur =~ s/^GAN([( ])/NOT$2/g;
 
 bail_out unless ( $ionchur );
 $ionchur =~ s/'/\'/g;
@@ -60,12 +73,13 @@ my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
 my $crub='/usr/local/share/crubadan/ga';
 my $snapshot='/snapshot/aimsigh';
 
-# There are three command line args:
-# First is the query itself, from the search box:
-my $qhtml = $ionchur;
-#from_to($qhtml,"UTF-8","ISO-8859-1");  # double-encoded, so really the result is utf-8 encoded
-my $flattened = $qhtml;
-#  convert to big OR of regexen
+# some useful alternate versions of the query:
+my $qhtml = $ionchur;   # should convert to entities (&#UTF; easiest?)
+# for use in URLs (succeeding pages linked at bottom of results page)
+my $postdata = $ionchur;
+$postdata =~ s/ /+/g;
+#  for finding sliocht in post-retrieval scan of tokenized file
+my $flattened = $ionchur;
 my $patt = qr/$flattened/;
 
 # takes a docId number, reads the tokenized file from YNN, NNY, as appropriate,
@@ -172,6 +186,8 @@ sub cuardach {
 
 my %match_hash;
 my @matches;
+#  this translation is guaranteed to work because of filters applied to
+#  the ionchur string above...
 my $topipe = encode("ISO-8859-1", $ionchur);
 cuardach($topipe, 'TEIDIL', \%match_hash, \@matches);  # ignore return
 my $iomlan = cuardach($topipe, $inneacs, \%match_hash, \@matches);
@@ -234,7 +250,7 @@ else {
 		print "<p class=\"laraithe\"><b>Leathanach:</b>&nbsp;&nbsp;&nbsp;&nbsp;\n";
 		if ($firstlinkedpage > 1) {
 			$newseen=$feicthe-10;
-			print "<a href=\"$cgi?ionchur=$ionchur&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
+			print "<a href=\"$cgi?ionchur=$postdata&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
 		}
 		for my $leathanach ($firstlinkedpage..$lastlinkedpage) {
 			if ($leathanach == $currpage) {
@@ -242,12 +258,12 @@ else {
 			}
 			else {
 				$newseen=10*($leathanach-1);
-				print "<a href=\"$cgi?ionchur=$ionchur&feicthe=$newseen&claochlu=$claoch$neamh\">$leathanach</a>\n";
+				print "<a href=\"$cgi?ionchur=$postdata&feicthe=$newseen&claochlu=$claoch$neamh\">$leathanach</a>\n";
 			}
 		}
 		$newseen=$feicthe+10;
 		if ($currpage < $lastpagetotal) {
-			print "<a href=\"$cgi?ionchur=$ionchur&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Ar Aghaidh</b></a>\n";
+			print "<a href=\"$cgi?ionchur=$postdata&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Ar Aghaidh</b></a>\n";
 		}
 		print "</p>\n";
 	}  # if more than one page
