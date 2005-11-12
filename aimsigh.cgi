@@ -43,6 +43,20 @@ sub decode_URL
 	return $str;
 }
 
+# translate aimsigh.com query syntax to underlying search engine's syntax
+sub aimsigh_to_engine
+{
+	(my $str) = @_;
+	$str =~ s/([ ()"])[Aa][Nn][Dd]([ ()"])/$1 "and" $2/g;
+	$str =~ s/([ ()"])[Oo][Rr]([ ()"])/$1 "or" $2/g;
+	$str =~ s/([ ()"])[Nn][Oo][Tt]([ ()"])/$1 "not" $2/g;
+	$str =~ s/([ )])AGUS([( ])/$1AND$2/g;
+	$str =~ s/([ )])NÓ([( ])/$1OR$2/g;
+	$str =~ s/([ ()"])GAN([( ])/$1NOT$2/g;
+	$str =~ s/^GAN([( ])/NOT$2/g;
+	return $str;
+}
+
 my @shellargs;
 my $q = new CGI;
 # http headers, not html headers!
@@ -53,23 +67,18 @@ my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
 $ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
 $ionchur = decode_URL($ionchur);
 my $pristine = $ionchur;   # used for "value" in form at top of results page
-$pristine =~ s/"/&quot;/g; # value is quoted so encode any literal quotes
+$pristine =~ s/"/&quot;/g; # and also for title of results page; value is
+			   # quoted so need to encode any literal quotes
+			   # should probably also do > ASCII chars as 
+			   # &#XXXX; though FF and IE seem ok with them
 
 # important in particular to kill chars that are special to 
 # swish-e search that we don't want to support: *,= esp.
 # also stuff like shell metachars for safety (even though we're now
 # not using any external programs!)   ISO-8859-1 ONLY!
 $ionchur =~ s/[^0-9a-zA-ZàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ ()"'-]/ /g;
-#  translate aimsigh search syntax to swish-e
-$ionchur =~ s/([ ()"])[Aa][Nn][Dd]([ ()"])/$1 "and" $2/g;
-$ionchur =~ s/([ ()"])[Oo][Rr]([ ()"])/$1 "or" $2/g;
-$ionchur =~ s/([ ()"])[Nn][Oo][Tt]([ ()"])/$1 "not" $2/g;
-$ionchur =~ s/([ )])AGUS([( ])/$1AND$2/g;
-$ionchur =~ s/([ )])NÓ([( ])/$1OR$2/g;
-$ionchur =~ s/([ ()"])GAN([( ])/$1NOT$2/g;
-$ionchur =~ s/^GAN([( ])/NOT$2/g;
 
-bail_out unless ( $ionchur );
+bail_out unless ( $ionchur );   # or better if no search terms?
 $ionchur =~ s/'/\'/g;
 
 
@@ -90,6 +99,8 @@ else {
 	$inneacs .= 'N';
 }
 
+open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
+
 
 ############################################################################
 #  End of CGI stuff; rest of code is for sending query to swish-e,
@@ -99,12 +110,11 @@ my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
 my $crub='/usr/local/share/crubadan/ga';
 my $snapshot='/snapshot/aimsigh';
 
-# some useful alternate versions of the query:
-my $qhtml = $ionchur;   # for results page title; should convert to entities (&#UTF; easiest?, include &quot; !)
 # for use in URLs (succeeding pages linked at bottom of results page)
 my $postdata = encode_URL($ionchur);
 #  for finding sliocht in post-retrieval scan of tokenized file
 my $flattened = $ionchur;
+print FUN "pattern to compile: $flattened\n";
 my $patt = qr/$flattened/;
 
 # takes a docId number, reads the tokenized file from YNN, NNY, as appropriate,
@@ -157,6 +167,7 @@ sub cruthaigh_toradh
 		m/^([^:]+): (.*)$/;	
 		$hash{$1} = $2;
 	}
+	close SONRAI;
 	if (length($hash{'title'}) > 100) {
 		$hash{'title'} = substr($hash{'title'},0,96)."...";
 	}
@@ -178,9 +189,9 @@ sub cuardach {
 	my $sw = SWISH::API->new( "/home/kps/seal/inneacs/$cineal.index" );
 	$sw->AbortLastError if $sw->Error;
 
-	open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
+#	open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
 	print FUN "Q=$query\nC=$cineal\n\n";
-	close FUN;
+#	close FUN;
 
 	my $results = $sw->Query( $query );
 	my %hits;
@@ -235,7 +246,7 @@ print <<HEADER;
         "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="ga">
   <head>
-    <title>$qhtml - Cuardach aimsigh.com</title>
+    <title>$pristine - Cuardach aimsigh.com</title>
     <meta http-equiv="Content-Language" content="ga">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="aimsigh.com">
@@ -301,5 +312,7 @@ print <<FOOTER;
   </body>
 </html>
 FOOTER
+
+close FUN;
 
 exit 0;
