@@ -5,6 +5,7 @@ use warnings;
 # don't bother with PDL, matrices are too big for memory
 
 # hash of all URLs to be ranked; value is the index in the big matrix
+# Needed to create "linktome" matrix when hrefs are found in docs
 my %byurl;
 # get crubadan docId (100000..999999) given an index in big matrix
 my @docIds;
@@ -41,8 +42,8 @@ my $prtotal=0;
 my $htmldocs=0;
 my $all=0;
 print "Reading cached files, extracting links and computing incidence matrix...\n";
-foreach my $docId (@docIds) { 
-	open(DOCDATA, "<", "$base/sonrai/$docId.dat") or die "Could not open file $docId.dat: $!\n";
+for my $j (0..$end) {
+	open(DOCDATA, "<", "$base/sonrai/$docIds[$j].dat") or die "Could not open file $docIds[$j].dat: $!\n";
 	my $extension;
 	my $url;
 	my $pre_pr;
@@ -51,6 +52,7 @@ foreach my $docId (@docIds) {
 		if (m/^url: /) {
 			$url = $_;
 			$url =~ s/^url: //;
+			# unless ($byurl{$url} == $j) {die}
 		}
 		if (m/^format: /) {
 			$extension = $_;
@@ -59,15 +61,15 @@ foreach my $docId (@docIds) {
 		if (m/^pagerank: /) {
 			$pre_pr = $_;
 			$pre_pr =~ s/^pagerank: //;
+			$pr[$j] = $pre_pr;
+#			print "j=$j; setting initial pr for $docIds[$j] to $pr[$j]\n";
 			$prtotal += $pre_pr;
 		}
 	}
 	close DOCDATA;
-	my $col = $byurl{$url};
-	$linksout[$col] = 0;
-	$pr[$col] = $pre_pr;
+	$linksout[$j] = 0;
 	if ($extension eq 'html') {
-		my $realfile="$base/taisce/$docId.$extension";
+		my $realfile="$base/taisce/$docIds[$j].$extension";
 		$htmldocs++;
 		print "$htmldocs... " if ($htmldocs % 100 == 0);
 		# note: get_refs returns only uniq refs
@@ -78,13 +80,13 @@ foreach my $docId (@docIds) {
 		foreach my $ref (@refs) {
 			chomp $ref;
 			if (exists($byurl{$ref})) {
-				push @{$linktome[$byurl{$ref}]},$col;
-				$linksout[$col]++;
+				push @{$linktome[$byurl{$ref}]},$j;
+				$linksout[$j]++;
 				$all++;
 			}
 		}
 	}
-	push(@sinks, $col) if ($linksout[$col]==0);
+	push(@sinks, $j) if ($linksout[$j]==0);
 }
 print "Processed $N Irish documents ($htmldocs in HTML); found $all Irish-to-Irish links...\n";
 #  need to add slosh b/c documents sometimes get 'dockill'ed, which 
