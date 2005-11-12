@@ -215,6 +215,10 @@ sub process_me
 		# "infhillte" option alone.
 				while ($s =~ m/<[A-Z][^>]*>([^<]+)<\/[A-Z]>/g) {
 					my $tok = $1;
+					$tok =~ s/&quot;/"/g;  # in URLs only
+					$tok =~ s/&lt;/</g;
+					$tok =~ s/&gt;/>/g;
+					$tok =~ s/&amp;/&/g;
 					foreach (split / /,$tok) {  # "ar bith", etc.
 						print SPRIOC strip_mutation(lower_me($_))." ";
 					}
