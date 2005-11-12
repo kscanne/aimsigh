@@ -21,6 +21,28 @@ print '<HTML><META HTTP-EQUIV="REFRESH" CONTENT="0;URL=http://www.aimsigh.com"><
 exit 0;
 }
 
+sub encode_URL
+{
+	(my $str) = @_;
+	$str =~ s/ /+/g;
+	$str =~ s/"/%22/g;
+	$str =~ s/'/%27/g;
+	$str =~ s/\(/%28/g;
+	$str =~ s/\)/%29/g;
+	return $str;
+}
+
+sub decode_URL
+{
+	(my $str) = @_;
+	$str =~ s/\+/ /g;   # not really necessary since this is the default
+	$str =~ s/%22/"/g;
+	$str =~ s/%27/'/g;
+	$str =~ s/%28/(/g;
+	$str =~ s/%29/)/g;
+	return $str;
+}
+
 my @shellargs;
 my $q = new CGI;
 # http headers, not html headers!
@@ -29,6 +51,10 @@ print $q->header(-type=>"text/html", -charset=>'utf-8');
 bail_out unless (defined($q->param( "ionchur" )));
 my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
 $ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
+$ionchur = decode_URL($ionchur);
+my $pristine = $ionchur;   # used for "value" in form at top of results page
+$pristine =~ s/"/&quot;/g; # value is quoted so encode any literal quotes
+
 # important in particular to kill chars that are special to 
 # swish-e search that we don't want to support: *,= esp.
 # also stuff like shell metachars for safety (even though we're now
@@ -74,10 +100,9 @@ my $crub='/usr/local/share/crubadan/ga';
 my $snapshot='/snapshot/aimsigh';
 
 # some useful alternate versions of the query:
-my $qhtml = $ionchur;   # should convert to entities (&#UTF; easiest?)
+my $qhtml = $ionchur;   # for results page title; should convert to entities (&#UTF; easiest?, include &quot; !)
 # for use in URLs (succeeding pages linked at bottom of results page)
-my $postdata = $ionchur;
-$postdata =~ s/ /+/g;
+my $postdata = encode_URL($ionchur);
 #  for finding sliocht in post-retrieval scan of tokenized file
 my $flattened = $ionchur;
 my $patt = qr/$flattened/;
@@ -220,7 +245,7 @@ print <<HEADER;
   <body>
     <form class="laraithe" action="/cgi-bin/aimsigh.cgi" method="POST">
       <a href="http://www.aimsigh.com/"><img class="nasctha" src="/aimsigh/aimsigh.png" alt="aimsigh.com"></a><br>
-      <input size="50" name="ionchur" value="$qhtml"><br>
+      <input size="50" name="ionchur" value="$pristine"><br>
       <input type="submit" name="foirm" value="Aimsigh é"><br>
       <input type="hidden" name="feicthe" value="0">
       <input type="hidden" name="claochlu" value="$claoch">
@@ -272,7 +297,7 @@ else {
 
 print <<FOOTER;
     <hr>
-    <p class="anbheag">Cóipcheart © 2005 <a href="/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
+    <p class="anbheag">Cóipcheart © 2005 <a href="http://borel.slu.edu/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
   </body>
 </html>
 FOOTER
