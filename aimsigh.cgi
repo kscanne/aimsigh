@@ -57,6 +57,22 @@ sub aimsigh_to_engine
 	return $str;
 }
 
+sub partner
+{
+	(my $str) = @_;
+	$str =~ s/^(.).*/$1/;
+	$str =~ tr/a-zA-ZàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ/A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþ/;
+	return $str;
+}
+
+sub loosen
+{
+	(my $str) = @_;
+	$str =~ s/ /./g;
+	$str =~ s/([^.'-])/"[$1".partner("$1")."]"/eg;
+	return $str;
+}
+
 my @shellargs;
 my $q = new CGI;
 # http headers, not html headers!
@@ -66,17 +82,41 @@ bail_out unless (defined($q->param( "ionchur" )));
 my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
 $ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
 $ionchur = decode_URL($ionchur);
-my $pristine = $ionchur;   # used for "value" in form at top of results page
-$pristine =~ s/"/&quot;/g; # and also for title of results page; value is
-			   # quoted so need to encode any literal quotes
-			   # should probably also do > ASCII chars as 
-			   # &#XXXX; though FF and IE seem ok with them
 
 # important in particular to kill chars that are special to 
 # swish-e search that we don't want to support: *,= esp.
 # also stuff like shell metachars for safety (even though we're now
 # not using any external programs!)   ISO-8859-1 ONLY!
 $ionchur =~ s/[^0-9a-zA-ZàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ ()"'-]/ /g;
+
+# now before converting query to swish-e syntax, need to store
+# it a couple of different ways for the results page:
+my $pristine = $ionchur;   # used for "value" in form at top of results page
+$pristine =~ s/"/&quot;/g; # and also for title of results page; value is
+			   # quoted so need to encode any literal quotes
+			   # should probably also do > ASCII chars as 
+			   # &#XXXX; though FF and IE seem ok with them
+# for use in URLs (succeeding pages linked at bottom of results page)
+my $postdata = encode_URL($ionchur);
+
+$ionchur = aimsigh_to_engine($ionchur);
+
+# now extract search terms for processing
+my $hackable = $ionchur;
+my @tearmai;
+push @tearmai, $1 while ($hackable =~ m/"([^"]+)"/g);
+$hackable =~ s/"[^"]+"/ /g;
+while ($hackable =~ m/([^ ()"]+)/g) {
+	my $tearma = $1;
+	$tearma =~ s/^['-]+//;
+	$tearma =~ s/['-]+$//;
+	push @tearmai, $tearma unless ( $tearma eq '' or 
+					$tearma eq 'AND' or
+					$tearma eq 'OR' or
+					$tearma eq 'NOT' );
+}
+open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
+print FUN "TERMS: ", join(",",@tearmai), "\n";
 
 bail_out unless ( $ionchur );   # or better if no search terms?
 $ionchur =~ s/'/\'/g;
@@ -99,7 +139,6 @@ else {
 	$inneacs .= 'N';
 }
 
-open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
 
 
 ############################################################################
@@ -110,11 +149,9 @@ my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
 my $crub='/usr/local/share/crubadan/ga';
 my $snapshot='/snapshot/aimsigh';
 
-# for use in URLs (succeeding pages linked at bottom of results page)
-my $postdata = encode_URL($ionchur);
 #  for finding sliocht in post-retrieval scan of tokenized file
-my $flattened = $ionchur;
-print FUN "pattern to compile: $flattened\n";
+my $flattened = '(^|[^A-Za-z])('.join('|',map {loosen($_)} @tearmai).')([^A-Za-z]|$)';
+print FUN "REGEX: $flattened\n";
 my $patt = qr/$flattened/;
 
 # takes a docId number, reads the tokenized file from YNN, NNY, as appropriate,
@@ -184,7 +221,7 @@ sub cruthaigh_toradh
 #######################################################################
 
 sub cuardach {
-	(my $query, my $cineal, my $href, my $aref) = @_;
+	(my $query, my $cineal, my $href) = @_;
 
 	my $sw = SWISH::API->new( "/home/kps/seal/inneacs/$cineal.index" );
 	$sw->AbortLastError if $sw->Error;
@@ -194,39 +231,43 @@ sub cuardach {
 #	close FUN;
 
 	my $results = $sw->Query( $query );
-	my %hits;
 	my $count = 0;
+
+	# ranking parameters:
+	  # only consider the $numdocs most relevant from swish-e
+	my $numdocs=1000;
+	  # in case doc is not among 1st 1000 in inneacs search, don't
+	  # punish it with a 0 relevance...
+	my $baserelevance=250;
+	  # divide page ranking (0..numdocs-1) by this number
+	my $pagerankdamp=1;
+	  # add this number if search terms appear in title
+	my $titlebonus=100000/$pagerankdamp;
 
 	while ( my $result = $results->NextResult ) {
 		my $title=$result->Property( "swishdocpath" );
 		$title =~ /^([0-9]+)-([0-9]+)$/;
-		$hits{$2}=$1;
+		if ($cineal eq 'TEIDIL') {
+			$href->{$2}=$baserelevance - ($1-100000)/$pagerankdamp unless (exists($href->{$2}));
+			$href->{$2}+=$titlebonus;
+		}
+		else {
+			$href->{$2}=$result->Property( "swishrank" ) - ($1-100000)/$pagerankdamp;
+		}
 		$count++;
-		last if ($count==500);
-	}
-
-	if ($cineal eq 'TEIDIL') {
-		foreach (sort {$hits{$a} <=> $hits{$b}} keys %hits) {
-			$href->{$_}++;
-			push @$aref, $_;
-		}
-	}
-	else {
-		foreach (sort {$hits{$a} <=> $hits{$b}} keys %hits) {
-			push @$aref, $_ unless (exists($href->{$_}));
-		}
+		last if ($count==$numdocs);
 	}
 	return $results->Hits;
 }
 
 
 my %match_hash;
-my @matches;
 #  this translation is guaranteed to work because of filters applied to
 #  the ionchur string above...
 my $topipe = encode("ISO-8859-1", $ionchur);
-cuardach($topipe, 'TEIDIL', \%match_hash, \@matches);  # ignore return
-my $iomlan = cuardach($topipe, $inneacs, \%match_hash, \@matches);
+my $iomlan = cuardach($topipe, $inneacs, \%match_hash);
+cuardach($topipe, 'TEIDIL', \%match_hash);  # ignore return
+my @matches = (sort {$match_hash{$b} <=> $match_hash{$a}} keys %match_hash);
 my $num = scalar @matches;
 my $start = $feicthe + 1;
 my $end = $feicthe + 10;  # ten results per page
