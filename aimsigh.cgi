@@ -156,7 +156,7 @@ my $patt = qr/$flattened/;
 
 # takes a docId number, reads the tokenized file from YNN, NNY, as appropriate,
 # finds first search term it can, records this line number, then extracts
-# the same line number out of the NNN file
+# the same line number out of the ABAIRT file
 sub bain_sliocht_as
 {
 	(my $docId) = @_;
@@ -172,17 +172,15 @@ sub bain_sliocht_as
 		}
 	}
 	close SONRAI;
-	if ($inneacs ne 'NNN') {
-		open(CLEAN, "<", "$snapshot/NNN/$docId.txt") or die "Could not open tokenized file NNN/$docId.txt: $!\n";
-		while (<CLEAN>) {
-			if ($. == $line) {
-				chomp;
-				$sliocht=$_;
-				last;
-			}
+	open(CLEAN, "<", "$snapshot/ABAIRT/$docId.txt") or die "Could not open clean file ABAIRT/$docId.txt: $!\n";
+	while (<CLEAN>) {
+		if ($. == $line) {
+			chomp;
+			$sliocht=$_;
+			last;
 		}
-		close CLEAN;
 	}
+	close CLEAN;
 	#  now clean it up
 	$sliocht =~ s/----+/---/g;
 	if (length($sliocht) > 300) {
@@ -220,6 +218,11 @@ sub cruthaigh_toradh
 #     Start of main program - call search engine to get candidate docs
 #######################################################################
 
+# serves two related purposes; limits the number of docs retrieved from
+# any call to swish-e, and also limits the number of docs accessible 
+# through the aimsigh results pages
+my $numdocs=500;
+
 sub cuardach {
 	(my $query, my $cineal, my $href) = @_;
 
@@ -234,8 +237,6 @@ sub cuardach {
 	my $count = 0;
 
 	# ranking parameters:
-	  # only consider the $numdocs most relevant from swish-e
-	my $numdocs=1000;
 	  # in case doc is not among 1st 1000 in inneacs search, don't
 	  # punish it with a 0 relevance...
 	my $baserelevance=250;
@@ -269,6 +270,8 @@ my $iomlan = cuardach($topipe, $inneacs, \%match_hash);
 cuardach($topipe, 'TEIDIL', \%match_hash);  # ignore return
 my @matches = (sort {$match_hash{$b} <=> $match_hash{$a}} keys %match_hash);
 my $num = scalar @matches;
+$num = $numdocs if ($num > $numdocs);  # might happen...
+$iomlan = $num if ($num > $iomlan);    # shouldn't happen...
 my $start = $feicthe + 1;
 my $end = $feicthe + 10;  # ten results per page
 $end = $num if ($num < $end);
@@ -311,9 +314,7 @@ if ($num == 0) {
 	print "Níor aimsíodh d'iarratas i gcáipéis ar bith.<br><br>\n";
 }
 else {
-	print "<b>Tagairtí $start - $end as ";
-#	print "níos mó ná " if ($iomlan == 20000);  # zettair-specific
-	print "$iomlan á dtaispeáint:</b><br>\n";
+	print "<b>Cáipéisí $start - $end as $iomlan á dtaispeáint:</b><br>\n";
 
 	cruthaigh_toradh($matches[$_-1]) for ($start..$end);
 
