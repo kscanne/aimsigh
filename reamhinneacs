@@ -5,8 +5,8 @@ use warnings;
 use Lingua::GA::Stemmer;
 use Lingua::GA::Caighdean;
 
-if ($#ARGV != 0 or $ARGV[0] !~ m/^(?:NN|YY|YN)[YN]$/) {
-	print "Usage: reamhinneacs (YYY|YNY|YNN|YYN|NNY|NNN)\n";
+if ($#ARGV != 0 or $ARGV[0] !~ m/^(?:ABAIRT|ABAIRT-CH|(?:NN|YY|YN)[YN])$/) {
+	print "Usage: reamhinneacs (ABAIRT|ABAIRT-CH|YYY|YNY|YNN|YYN|NNY|NNN)\n";
 	exit 1;
 }
 binmode STDOUT, ":encoding(iso-8859-1)";
@@ -18,11 +18,11 @@ my $obj;
 if ($cineal =~ m/^YY/) {
 	$obj = new Lingua::GA::Stemmer;
 }
-elsif ($cineal eq 'NNY') {
+elsif ($cineal eq 'ABAIRT-CH') {
 	$obj = new Lingua::GA::Caighdean(fix_spelling => 0);
 }
 else {
-	#  need "get_sentences" for NNN and "tokenize" for YNN, YNY
+	#  need "get_sentences" for ABAIRT and "tokenize" for NN., YN.
 	$obj = new Lingua::GA::Gramadoir;
 }
 
@@ -180,27 +180,29 @@ sub process_me
 	open (SPRIOC, ">", $sprioc) or die "Could not open target file $sprioc: $!\n";
 	open (FOINSE, "<", $foinse) or die "Could not open source file $foinse: $!\n";
 	print SPRIOC "<DOC>\n<DOCNO>$docno</DOCNO>\n";
-	if ($cineal =~ m/^NN/) {
+	if ($cineal =~ m/^ABAIRT/) {
 		local $/;
 		my $text = <FOINSE>;
 		close FOINSE;
-		if ($cineal eq 'NNN') {
+		if ($cineal eq 'ABAIRT') {
 			foreach (@{$obj->get_sentences($text)}) {
 				s/&quot;/"/g;
 				s/&lt;/</g;
 				s/&gt;/>/g;
 				s/&amp;/&/g;
+				# don't truncate here since these files
+				# are used for indexing; do it in aimsigh.cgi
 				print SPRIOC "$_\n";
 			}
 		}
-		else {    # NNY
+		else {  # ABAIRT-CH
 			print SPRIOC $obj->caighdean($text)."\n";
 		}
 	}
 	else {
 		my $dum = <FOINSE>;  # <DOC>
 		$dum = <FOINSE>;     # <DOCNO>...</DOCNO>
-		while (<FOINSE>) {  # now reading TREC file from NNN or NNY
+		while (<FOINSE>) {  # now reading TREC file from ABAIRT*
 			chomp;
 			last if /^<\/DOC>$/;
 			if ($cineal =~ m/^YY/) {
@@ -224,10 +226,11 @@ sub process_me
 					}
 				}
 			}
-			else {  # $cineal eq 'YNN'  or 'YNY'
+			else {  # $cineal eq 'YN.' or 'NN.'
 				my $tokes = $obj->tokenize($_);
 				foreach my $tok (@$tokes) {
-					$tok = strip_mutation(lower_me($tok));
+					$tok = lower_me($tok);
+					$tok = strip_mutation($tok) if ($cineal =~ m/^Y/);
 					print SPRIOC $tok." ";
 				}
 			}
@@ -241,13 +244,14 @@ sub process_me
 
 
 my $base;
-if ($cineal =~ m/^NN/) {
+if ($cineal =~ m/^ABAIRT/) {
 	$base='/usr/local/share/crubadan/ga/ciu';
 }
-else {
-	my $basedir=$cineal;
-	$basedir =~ s/^../NN/;
-	$base="/snapshot/aimsigh/$basedir";
+elsif ($cineal =~ m/N$/) {
+	$base="/snapshot/aimsigh/ABAIRT";
+}
+else {   # ..Y 
+	$base="/snapshot/aimsigh/ABAIRT-CH";
 }
 my $range="/snapshot/aimsigh/$cineal";
 
