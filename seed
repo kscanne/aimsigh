@@ -5,6 +5,6 @@ then
 	exit 1
 fi
 TEMPFILE=`mktemp`
-wget -O "${TEMPFILE}" "${1}"
+wget --no-check-certificate -O "${TEMPFILE}" "${1}"
 cat "${TEMPFILE}" | get_refs.pl "${1}" >> /usr/local/share/crubadan/ga/TOCRAWL
 rm -f "${TEMPFILE}"
