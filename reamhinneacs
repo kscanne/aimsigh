@@ -125,7 +125,7 @@ my %realaitch = (
 sub lower_me
 {
 	(my $inp) = @_;
-	$inp =~ s/>([nt])([AEIOUÁÉÍÓÚ])/>$1-$2/;
+	$inp =~ s/^([nt])([AEIOUÁÉÍÓÚ])/$1-$2/;
 	$inp =~ tr/A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞ/a-zàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþ/;
 	return $inp;
 }
@@ -227,8 +227,7 @@ sub process_me
 			else {  # $cineal eq 'YNN'  or 'YNY'
 				my $tokes = $obj->tokenize($_);
 				foreach my $tok (@$tokes) {
-					$tok = lower_me($tok);
-					$tok = strip_mutation($tok) if ($cineal =~ m/^YN/);
+					$tok = strip_mutation(lower_me($tok));
 					print SPRIOC $tok." ";
 				}
 			}
