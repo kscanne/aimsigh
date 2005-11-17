@@ -15,162 +15,14 @@ binmode STDIN, ":bytes";
 
 my $cineal = $ARGV[0];
 my $obj;
-if ($cineal =~ m/^YY/) {
-	$obj = new Lingua::GA::Stemmer;
+if ($cineal eq 'ABAIRT') {
+	$obj = new Lingua::GA::Gramadoir;   # get_sentences
 }
 elsif ($cineal eq 'ABAIRT-CH') {
 	$obj = new Lingua::GA::Caighdean(fix_spelling => 0);
 }
 else {
-	#  need "get_sentences" for ABAIRT and "tokenize" for NN., YN.
-	$obj = new Lingua::GA::Gramadoir;
-}
-
-# lower_me has been called before comparison with this table
-#  stuff like "chonaic", "chuala" is ok to demutate to *"cuala", etc.
-#  since we want them lumped together with "gcuala" etc.
-#  "tharla" too.
-my %immutable = (
-	'bhuel' => 1,
-	'bhur' => 1,
-	'cha' => 1,
-	'chan' => 1,
-	'char' => 1,
-	'charbh' => 1,
-	'cheana' => 1,
-	'chiot' => 1,
-	'chomh' => 1,
-	'choíche' => 1,
-	'chucu' => 1,
-	'chucu' => 1,
-	'chugaibh' => 1,
-	'chugainn' => 1,
-	'chugam' => 1,
-	'chugat' => 1,
-	'chuici' => 1,
-	'chuig' => 1,
-	'chuige' => 1,
-	'chun' => 1,
-	'thairis' => 1,
-	'thairsti' => 1,
-	'thall' => 1,
-	'thar' => 1,
-	'tharaibh' => 1,
-	'tharainn' => 1,
-	'tharam' => 1,
-	'tharat' => 1,
-	'tharstu' => 1,
-	'thart' => 1,
-	'theas' => 1,
-	'thiar' => 1,
-	'thíos' => 1,
-	'thíosluaite' => 1,
-	'thoir' => 1,
-	'thuaidh' => 1,
-	'thuas' => 1,
-	'thuasluaite' => 1,
-);
-
-my %realaitch = (
-	'had' => 1,
-	'hall' => 1,
-	'hamilton' => 1,
-	'hans' => 1,
-	'harold' => 1,
-	'harp' => 1,
-	'harrington' => 1,
-	'harris' => 1,
-	'harrison' => 1,
-	'harvard' => 1,
-	'hata' => 1,
-	# not has
-	'have' => 1,
-	'he' => 1,
-	'head' => 1,
-	'health' => 1,
-	'hector' => 1,
-	'height' => 1,
-	'helen' => 1,
-	'help' => 1,
-	'her' => 1,
-	'herald' => 1,
-	'here' => 1,
-	'heritage' => 1,
-	'hidden' => 1,
-	'hide' => 1,
-	'higgins' => 1,
-	'high' => 1,
-	'hill' => 1,
-	'his' => 1,
-	'hitler' => 1,
-	'hogan' => 1,
-	'home' => 1,
-	'homepage' => 1,
-	'hong' => 1,
-	'hospital' => 1,
-	'hotel' => 1,
-	'house' => 1,
-	'houses' => 1,
-	'housing' => 1,
-	'hugh' => 1,
-	'hughes' => 1,
-	'human' => 1,
-	'hume' => 1,
-	'hurdle' => 1,
-	'hussein' => 1,
-	'hutton' => 1,
-);
-
-# same as in stemmer module
-sub lower_me
-{
-	(my $inp) = @_;
-	$inp =~ s/^([nt])([AEIOUÁÉÍÓÚ])/$1-$2/;
-	$inp =~ tr/A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏĞÑÒÓÔÕÖØÙÚÛÜİŞ/a-zàáâãäåæçèéêëìíîïğñòóôõöøùúûüış/;
-	return $inp;
-}
-
-# compare stemmer "simplify"; assuming here "lower_me" has been called
-# completely naive - doesn't care if it strips lenition off, say, a 
-# conditional verb to produce an "incorrect" spelling.  After all,
-# these stripped forms are just used for indexing
-sub strip_mutation
-{
-	(my $word) = @_;
-	return $word if (exists($immutable{$word}));
-	$word =~ s/^[bdms]'//;
-	$word =~ s/^[nt]-//;
-	$word =~ s/^bhf/f/;
-	$word =~ s/^gc/c/;
-	$word =~ s/^n([dg])/$1/;
-	$word =~ s/^bp/p/;
-	$word =~ s/^ts/s/;
-	$word =~ s/^dt/t/;
-	$word =~ s/^mb/b/;
-	$word =~ s/^([bcdfgmpt])h/$1/;
-	$word =~ s/^sh([lnraeiouáéíóú])/s$1/;
-	# in a given Irish corpus, the ^h words that are prefix-h+vowel
-	# VASTLY outnumber those which are true initial-h words,
-	# even including English pollution.  So the approach here,
-	# stripping all h's except a few common patterns plus
-	# exceptions in the realaitch hash, works quite well
-	if ($word =~ /^h[aeiouáéíóú]/) {
-		return $word if (exists($realaitch{$word}));
-		unless ($word =~ m/^haem/ or
-			$word =~ m/^halla[^s]/ or
-			$word =~ m/^háít/ or
-			$word =~ m/^hav/ or
-			$word =~ m/^h[íi]o?dr[áei]/ or
-			$word =~ m/^hiopn/ or
-			$word =~ m/^hip(?:ea|i)/ or
-			$word =~ m/^hoiméa/ or
-			$word =~ m/^h[óo]mai/ or
-		        $word =~ m/([^lnr])\1/ or
-		        $word =~ m/[jkqwxyz]/) {
-			$word =~ s/^h([aeiouáéíóú])/$1/;
-		}
-	}
-	return $word;
+	$obj = new Lingua::GA::Stemmer;
 }
 
 sub process_me
@@ -207,7 +59,7 @@ sub process_me
 			last if /^<\/DOC>$/;
 			if ($cineal =~ m/^YY/) {
 				my $s = $obj->stem($_);  # should be 1 line
-		# strip mutation on the next line is needed because the
+		# strip mutation below is needed because the
 		# stemmer is "too smart" - if a word is completely unknown
 		# it won't strip mutations at all.  This is smart for
 		# stuff like "chemical" but bad for new truly-Irish words
@@ -222,15 +74,15 @@ sub process_me
 					$tok =~ s/&gt;/>/g;
 					$tok =~ s/&amp;/&/g;
 					foreach (split / /,$tok) {  # "ar bith", etc.
-						print SPRIOC strip_mutation(lower_me($_))." ";
+						print SPRIOC $obj->strip_mutation($obj->tolower($_))." ";
 					}
 				}
 			}
 			else {  # $cineal eq 'YN.' or 'NN.'
 				my $tokes = $obj->tokenize($_);
 				foreach my $tok (@$tokes) {
-					$tok = lower_me($tok);
-					$tok = strip_mutation($tok) if ($cineal =~ m/^Y/);
+					$tok = $obj->tolower($tok);
+					$tok = $obj->strip_mutation($tok) if ($cineal =~ m/^Y/);
 					print SPRIOC $tok." ";
 				}
 			}
