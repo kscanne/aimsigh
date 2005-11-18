@@ -31,4 +31,9 @@ while read x
 do
 	seed "$x"
 done
+perl -e 'for (0..3) {my $i=1+$_*30; print "http://uk.groups.yahoo.com/group/buach/messages/$i\n";}' |
+while read x
+do
+	seed "$x"
+done
 exit 0
