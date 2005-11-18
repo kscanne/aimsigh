@@ -3,7 +3,7 @@
 use strict;
 use CGI;
 use utf8;
-use Encode qw(from_to decode encode);
+use Encode qw(decode encode);
 use SWISH::API;
 use integer;   # page calcs, "kb" calc
 use Lingua::GA::Stemmer;
@@ -311,7 +311,7 @@ sub generate_html_output {
 			$lastlinkedpage = $lastpagetotal if ($lastlinkedpage > $lastpagetotal);
 			my $newseen;
 			print "<p class=\"laraithe\"><b>Leathanach:</b>&nbsp;&nbsp;&nbsp;&nbsp;\n";
-			my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
+			my $cgi='http://www.aimsigh.com/cgi-bin/a.cgi';
 			if ($firstlinkedpage > 1) {
 				$newseen=$feicthe-10;
 				print "<a href=\"$cgi?ionchur=$postdata&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
