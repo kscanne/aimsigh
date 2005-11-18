@@ -1,4 +1,4 @@
-#!/usr/bin/perl -wT
+#!/usr/bin/speedy -wT
 
 use strict;
 use CGI;
@@ -11,7 +11,9 @@ use Lingua::GA::Caighdean;
 
 # persistent globals
 use vars qw($gramadoir_stemmer);
-$gramadoir_stemmer = new Lingua::GA::Stemmer;
+unless (defined($gramadoir_stemmer)) {
+	$gramadoir_stemmer = new Lingua::GA::Stemmer;
+}
 
 sub bail_out
 {
