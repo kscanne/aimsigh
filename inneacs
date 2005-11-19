@@ -14,7 +14,6 @@ do_one()
 #  SWISH-E
 rm -f $1.conf
 cat ${HOME}/gaeilge/aimsigh/aimsigh/NNN.conf | sed "s/NNN/$1/" > $1.conf
-rm -f "$1.index" "$1.index.prop"
 swish-e -c $1.conf -f $1.tmp -S prog -v 3
 mv -f $1.tmp $1.index
 mv -f $1.tmp.prop $1.index.prop
@@ -24,7 +23,7 @@ cd /home/kps/seal/inneacs
 do_one TEIDIL
 do_one NNN
 do_one YNN
-#do_one YYN
+do_one YYN
 #do_one NNY
 #do_one YNY
 #do_one YYY
