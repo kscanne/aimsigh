@@ -11,13 +11,17 @@
   </head>
 
   <body class="laraithe">
-    <div><img src="/aimsigh/aimsigh.png" alt="aimsigh.com"></div>
-    <form class="laraithe" action="http://borel.slu.edu/cgi-bin/aimsigh.cgi" method="POST">
+    <form class="laraithe" action="http://borel.slu.edu/cgi-bin/aimsigh.cgi" method="POST" target="torthai">
+      <table class="bloclaraithe"><tr>
+      <td>
+      <div><img src="/aimsigh/aimsigh.png" alt="aimsigh.com"></div>
       <div>
-        <input size="50" name="ionchur"><br>
-        <input type="submit" name="foirm" value="Aimsigh é"><br><br>
+        <input size="30" name="ionchur"><br>
+        <input type="submit" name="foirm" value="Aimsigh é">
         <input type="hidden" name="feicthe" value="0">
       </div>
+      </td>
+      <td>
       <table class="bloclaraithe">
         <tr class="cle"><td>
         <input type="radio" name="claochlu" value="NN" checked>Focail gan athrú [<a href="cabhair.html" class="beag">Cad é seo?</a>]
@@ -31,6 +35,9 @@
         <tr class="cle"><td>
         <input type="checkbox" name="neamhchaighdean" value="neamhchaighdean">Litriú neamhchaighdeánach [<a href="cabhair.html" class="beag">Cad é seo?</a>]
         </td></tr>
+      </table>
+      </td>
+      </tr>
       </table>
     </form>
 
