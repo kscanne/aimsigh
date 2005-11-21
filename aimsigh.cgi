@@ -190,7 +190,7 @@ sub cruthaigh_toradh
 	$hash{'size'} = 1+$hash{'size'}/1024;
 	print "<!--m-->";
 	print "[".$hash{'format'}."]&nbsp;" unless ($hash{'format'} eq 'html');
-	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\">".$hash{'title'}."</a></span><br>\n";
+	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\" target=\"_top\">".$hash{'title'}."</a></span><br>\n";
 	print "<span class=\"beag\">$sliocht</span><br>\n";
 	$hash{'url'} =~ s/^[a-z]+:\/\///;
 	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k -</span> <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I&nbsp;dTaisce</a></span><br><br><!--n-->\n";
@@ -299,7 +299,7 @@ sub generate_html_output {
 		$neamh='&neamhchaighdean' if ($inneacs =~ /Y$/);
 		(my $claoch) = $inneacs =~ m/^(..)(.)$/;
 		$hitz = $num if ($num > $hitz);    # shouldn't happen...
-		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint:</b><br><!--a-->\n";
+		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint:</b><br><br><!--a-->\n";
 	
 		my $patrun = create_flattened($ionchur);
 		cruthaigh_toradh($matchesref->[$_-1], $patrun, $inneacs) for ($start..$end);
@@ -369,7 +369,8 @@ sub get_cgi_data {
 	# else just leave it as 0
 
 	if (defined($q->param( "neamhchaighdean" )) and $q->param( "neamhchaighdean" ) =~ m/./) {
-		$inneacs .= 'Y';
+#		$inneacs .= 'Y';
+		$inneacs .= 'N';
 	}
 	else {
 		$inneacs .= 'N';
