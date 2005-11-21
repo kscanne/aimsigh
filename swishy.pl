@@ -2,13 +2,16 @@
 
 use strict;
 use warnings;
+use Lingua::GA::Stemmer;  # for TEIDIL
 
 # reads a list of docId's on stdin that have been sorted by PageRank
 my $base="/snapshot/aimsigh/$ARGV[0]";
 my $ext='txt';
+my $obj;
 if ($ARGV[0] eq 'TEIDIL') {
 	$base="/usr/local/share/crubadan/ga/sonrai";
 	$ext='dat';
+	$obj = new Lingua::GA::Stemmer;
 }
 my $count=100000;
 while (<STDIN>) {
@@ -21,8 +24,17 @@ while (<STDIN>) {
 			if (/^title: /) {
 				chomp;
 				($doc) = m/^title: (.*)$/;
-				$doc='' if ($doc eq 'Gan teideal');
-				$doc =~ s/^(([^ ]+ +){7}).*$/$1/;
+				if ($doc eq 'Gan teideal') {
+					$doc = '';
+				}
+				else {
+					my $tokes = $obj->tokenize($doc);
+					$doc='';
+					foreach my $toke (@$tokes) {
+						$doc .= $obj->tolower($toke)." ";
+					}
+					$doc =~ s/^(([^ ]+ +){7}).*$/$1/;
+				}
 			}
 		}
 	}
