@@ -188,11 +188,12 @@ sub cruthaigh_toradh
 		$hash{'title'} = substr($hash{'title'},0,96)."...";
 	}
 	$hash{'size'} = 1+$hash{'size'}/1024;
+	print "<!--m-->";
 	print "[".$hash{'format'}."]&nbsp;" unless ($hash{'format'} eq 'html');
 	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\">".$hash{'title'}."</a></span><br>\n";
 	print "<span class=\"beag\">$sliocht</span><br>\n";
 	$hash{'url'} =~ s/^[a-z]+:\/\///;
-	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k -</span> <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I dTaisce</a></span><br><br>";
+	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k -</span> <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I&nbsp;dTaisce</a></span><br><br><!--n-->\n";
 }
 
 #######################################################################
@@ -258,16 +259,16 @@ sub generate_html_header {
     <link rel="shortcut icon" href="/aimsigh/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <form class="laraithe" action="/cgi-bin/aimsigh.cgi" method="POST">
-      <a href="http://www.aimsigh.com/"><img class="nasctha" src="/aimsigh/aimsigh.png" alt="aimsigh.com"></a><br>
-      <input size="50" name="ionchur" value="$pristine"><br>
-      <input type="submit" name="foirm" value="Aimsigh é"><br>
-      <input type="hidden" name="feicthe" value="0">
-      <input type="hidden" name="claochlu" value="$claoch">
-      $neamhfoirm
-    </form>
-    <hr>
 HEADER
+#    <form class="laraithe" action="/cgi-bin/aimsigh.cgi" method="POST">
+#      <a href="http://www.aimsigh.com/"><img class="nasctha" src="/aimsigh/aimsigh.png" alt="aimsigh.com"></a><br>
+#      <input size="50" name="ionchur" value="$pristine"><br>
+#      <input type="submit" name="foirm" value="Aimsigh é"><br>
+#      <input type="hidden" name="feicthe" value="0">
+#      <input type="hidden" name="claochlu" value="$claoch">
+#      $neamhfoirm
+#    </form>
+#    <hr>
 }
 
 sub generate_html_footer {
@@ -298,7 +299,7 @@ sub generate_html_output {
 		$neamh='&neamhchaighdean' if ($inneacs =~ /Y$/);
 		(my $claoch) = $inneacs =~ m/^(..)(.)$/;
 		$hitz = $num if ($num > $hitz);    # shouldn't happen...
-		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint:</b><br>\n";
+		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint:</b><br><!--a-->\n";
 	
 		my $patrun = create_flattened($ionchur);
 		cruthaigh_toradh($matchesref->[$_-1], $patrun, $inneacs) for ($start..$end);
@@ -310,8 +311,8 @@ sub generate_html_output {
 			my $lastlinkedpage = $currpage+9;
 			$lastlinkedpage = $lastpagetotal if ($lastlinkedpage > $lastpagetotal);
 			my $newseen;
-			print "<p class=\"laraithe\"><b>Leathanach:</b>&nbsp;&nbsp;&nbsp;&nbsp;\n";
-			my $cgi='http://www.aimsigh.com/cgi-bin/a.cgi';
+			print "<!--z--><p class=\"laraithe\"><b>Leathanach:</b>&nbsp;&nbsp;&nbsp;&nbsp;\n";
+			my $cgi='http://borel.slu.edu/cgi-bin/aimsigh.cgi';
 			if ($firstlinkedpage > 1) {
 				$newseen=$feicthe-10;
 				print "<a href=\"$cgi?ionchur=$postdata&feicthe=$newseen&claochlu=$claoch$neamh\"><b>Siar</b></a>\n";
