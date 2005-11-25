@@ -1,4 +1,4 @@
-#!/usr/bin/speedy -wT
+#!/usr/bin/speedy -wT -- -t21600
 
 use strict;
 use CGI;
@@ -164,6 +164,7 @@ sub bain_sliocht_as
 	close CLEAN;
 	#  now clean it up
 	$sliocht =~ s/----+/---/g;
+	$sliocht =~ s/\+\+\+\++/+++/g;
 	if (length($sliocht) > 300) {
 		$sliocht = substr($sliocht,0,296)."...";
 	}
@@ -299,7 +300,7 @@ sub generate_html_output {
 		$neamh='&neamhchaighdean' if ($inneacs =~ /Y$/);
 		(my $claoch) = $inneacs =~ m/^(..)(.)$/;
 		$hitz = $num if ($num > $hitz);    # shouldn't happen...
-		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint:</b><br><br><!--a-->\n";
+		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint ó <a href=\"http://www.aimsigh.com/\" target=\"_top\">aimsigh.com</a>:</b><br><br><!--a-->\n";
 	
 		my $patrun = create_flattened($ionchur);
 		cruthaigh_toradh($matchesref->[$_-1], $patrun, $inneacs) for ($start..$end);
