@@ -23,10 +23,11 @@ install :
 	$(INSTALL) swishy.pl $(bindir)/swishy.pl
 
 installhtml :
-	$(INSTALL_DATA) index.html ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) aimsigh.css ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) aimsigh.png ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) favicon.ico ${HOME}/public_html/aimsigh
+	$(INSTALL_DATA) foirm.html ${HOME}/public_html/aimsigh
+	$(INSTALL_DATA) index.html ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
 	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary|http://www.tobar.ie/vb/)'; rm -f PILLAGED.2)
