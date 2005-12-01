@@ -165,6 +165,7 @@ sub bain_sliocht_as
 	#  now clean it up
 	$sliocht =~ s/----+/---/g;
 	$sliocht =~ s/\+\+\+\++/+++/g;
+	$sliocht =~ s/\.\.\.\.+/.../g;
 	if (length($sliocht) > 300) {
 		$sliocht = substr($sliocht,0,296)."...";
 	}
