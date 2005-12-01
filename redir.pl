@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+## READS DUPELOG looking for candidate URLs for redirection
+#  or scurf-cleanup
+
 use strict;
 use warnings;
 
