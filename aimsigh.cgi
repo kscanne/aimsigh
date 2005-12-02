@@ -195,7 +195,9 @@ sub cruthaigh_toradh
 	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\" target=\"_top\">".$hash{'title'}."</a></span><br>\n";
 	print "<span class=\"beag\">$sliocht</span><br>\n";
 	$hash{'url'} =~ s/^[a-z]+:\/\///;
-	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k -</span> <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I&nbsp;dTaisce</a></span><br><br><!--n-->\n";
+	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k</span>";
+#	print " - <span class=\"beag\"><a href=\"http://borel.slu.edu/\">I&nbsp;dTaisce</a></span>";
+	print "<br><br><!--n-->\n";
 }
 
 #######################################################################
