@@ -1,0 +1,35 @@
+#!/bin/bash
+
+cd /usr/local/share/crubadan/ga/sonrai
+
+# two args; first is regex to replace (BRE!), second is replacement
+fixone()
+{
+echo "Fixing \"$1\"..."
+find . -name '*.dat' | xargs grep -l "^title: .*$1" | xargs sed -i "/^title: /s/$1/$2/"
+}
+
+fixone 'January \([0-9][0-9][0-9][0-9]\)' 'Eanáir \1'
+exit 0
+
+fixone 'Microsoft Word - \([^ ]\)' '\1'
+fixone 'Microsoft Download Center' 'Lárionad Íosluchtaithe'
+fixone 'eolas-ibi Messages : Message \([0-9]*\) of ' 'Teachtaireachtaí eolas-ibi : Teachtaireacht \1 as '
+exit
+fixone 'Yahoo! Groups ' 'Grúpaí Yahoo! '
+fixone 'Office of the Ombudsman' 'Oifig an Ombudsman'
+fixone ' - Wikipedia$' ' - Vicipéid'
+fixone 'SEANCHAS-L Archives ' 'Cartlann SEANCHAS-L '
+fixone 'GAELIC-L Archives ' 'Cartlann GAELIC-L '
+fixone 'GAEILGE-A Archives ' 'Cartlann GAEILGE-A '
+fixone 'February \([0-9][0-9][0-9][0-9]\)' 'Feabhra \1'
+fixone 'March \([0-9][0-9][0-9][0-9]\)' 'Márta \1'
+fixone 'April \([0-9][0-9][0-9][0-9]\)' 'Aibreán \1'
+fixone 'May \([0-9][0-9][0-9][0-9]\)' 'Bealtaine \1'
+fixone 'June \([0-9][0-9][0-9][0-9]\)' 'Meitheamh \1'
+fixone 'July \([0-9][0-9][0-9][0-9]\)' 'Iúil \1'
+fixone 'August \([0-9][0-9][0-9][0-9]\)' 'Lúnasa \1'
+fixone 'September \([0-9][0-9][0-9][0-9]\)' 'Meán Fómhair \1'
+fixone 'October \([0-9][0-9][0-9][0-9]\)' 'Deireadh Fómhair \1'
+fixone 'November \([0-9][0-9][0-9][0-9]\)' 'Samhain \1'
+fixone 'December \([0-9][0-9][0-9][0-9]\)' 'Nollaig \1'
