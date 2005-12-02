@@ -264,15 +264,6 @@ sub generate_html_header {
   </head>
   <body>
 HEADER
-#    <form class="laraithe" action="/cgi-bin/aimsigh.cgi" method="POST">
-#      <a href="http://www.aimsigh.com/"><img class="nasctha" src="/aimsigh/aimsigh.png" alt="aimsigh.com"></a><br>
-#      <input size="50" name="ionchur" value="$pristine"><br>
-#      <input type="submit" name="foirm" value="Aimsigh é"><br>
-#      <input type="hidden" name="feicthe" value="0">
-#      <input type="hidden" name="claochlu" value="$claoch">
-#      $neamhfoirm
-#    </form>
-#    <hr>
 }
 
 sub generate_html_footer {
