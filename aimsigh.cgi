@@ -259,8 +259,8 @@ sub generate_html_header {
     <meta http-equiv="Content-Language" content="ga">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="author" content="aimsigh.com">
-    <link rel="stylesheet" href="/aimsigh/aimsigh.css" type="text/css">
-    <link rel="shortcut icon" href="/aimsigh/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="http://www.aimsigh.com/aimsigh/aimsigh.css" type="text/css">
+    <link rel="shortcut icon" href="http://www.aimsigh.com/aimsigh/favicon.ico" type="image/x-icon">
   </head>
   <body>
 HEADER
