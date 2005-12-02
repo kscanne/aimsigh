@@ -12,7 +12,6 @@ datadir = $(prefix)/share
 crubadandir = $(datadir)/crubadan/ga
 
 install :
-	$(MAKE) installhtml
 	$(INSTALL) aimsigh.cgi /home/httpd/cgi-bin
 	$(INSTALL) dockill $(bindir)/dockill
 	$(INSTALL) seed $(bindir)/seed
@@ -22,6 +21,7 @@ install :
 	$(INSTALL) prsort.pl $(bindir)/prsort.pl
 	$(INSTALL) swishy.pl $(bindir)/swishy.pl
 
+# local testing only!
 installhtml :
 	$(INSTALL_DATA) aimsigh.css ${HOME}/public_html/aimsigh
 	$(INSTALL_DATA) aimsigh.png ${HOME}/public_html/aimsigh
