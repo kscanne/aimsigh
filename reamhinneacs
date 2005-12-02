@@ -48,7 +48,7 @@ sub process_me
 			}
 		}
 		else {  # ABAIRT-CH
-			print SPRIOC $obj->caighdean($text)."\n";
+			print SPRIOC $obj->caighdean($text);
 		}
 	}
 	else {
