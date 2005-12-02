@@ -278,7 +278,7 @@ HEADER
 sub generate_html_footer {
 	print <<FOOTER;
     <hr>
-    <p class="anbheag">Cóipcheart © 2005 <a href="http://borel.slu.edu/index.html">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
+    <p class="anbheag">Cóipcheart © 2005 <a href="http://borel.slu.edu/index.html" target="_top">Kevin P. Scannell</a>. Gach ceart ar cosnamh.<br>Déan teagmháil linn ag <a href="mailto:eolas\@aimsigh.com">eolas\@aimsigh.com</a>.</p>
   </body>
 </html>
 FOOTER
