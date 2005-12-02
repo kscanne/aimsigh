@@ -293,6 +293,7 @@ sub generate_html_output {
 		print "Níor aimsíodh d'iarratas i gcáipéis ar bith.<br><br>\n";
 	}
 	else {
+		$feicthe = 490 if ($feicthe > 490);
 		$num = 500 if ($num > 500); # might happen...
 		my $start = $feicthe + 1;
 		my $end = $feicthe + 10;    # ten results per page
