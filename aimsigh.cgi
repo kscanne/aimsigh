@@ -10,9 +10,12 @@ use Lingua::GA::Stemmer;
 use Lingua::GA::Caighdean;
 
 # persistent globals
-use vars qw($gramadoir_stemmer);
+use vars qw($gramadoir_stemmer $caighdeanaitheoir);
 unless (defined($gramadoir_stemmer)) {
 	$gramadoir_stemmer = new Lingua::GA::Stemmer;
+}
+unless (defined($caighdeanaitheoir)) {
+	$caighdeanaitheoir = new Lingua::GA::Caighdean(fix_spelling => 0);
 }
 
 sub bail_out
@@ -83,8 +86,7 @@ sub normalize_terms
 {
 	(my $str, my $index) = @_;
 	if ($index =~ m/Y$/) {
-		my $gr = new Lingua::GA::Caighdean(fix_spelling => 0);
-		$str = $gr->caighdean($str); # preserves AND, NOT, quotes, etc.
+		$str = $caighdeanaitheoir->caighdean($str); # preserves AND, NOT, quotes, etc.
 	}
 	$str =~ s/([^ ()"]+)/normalize_term($1,$index)/eg;
 	return $str;
@@ -365,8 +367,7 @@ sub get_cgi_data {
 	# else just leave it as 0
 
 	if (defined($q->param( "neamhchaighdean" )) and $q->param( "neamhchaighdean" ) =~ m/./) {
-#		$inneacs .= 'Y';
-		$inneacs .= 'N';
+		$inneacs .= 'Y';
 	}
 	else {
 		$inneacs .= 'N';
