@@ -20,7 +20,8 @@ unless (defined($caighdeanaitheoir)) {
 
 sub bail_out
 {
-	print '<HTML><META HTTP-EQUIV="REFRESH" CONTENT="0;URL=http://www.aimsigh.com"></HTML>';
+#	print '<HTML><META HTTP-EQUIV="REFRESH" CONTENT="0;URL=http://www.aimsigh.com"></HTML>';
+	print "<html><head></head><body></body></html>\n";
 	exit 0;
 }
 
