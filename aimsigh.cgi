@@ -57,7 +57,7 @@ sub aimsigh_to_engine
 	$str =~ s/([ ()"])[Nn][Oo][Tt]([ ()"])/$1 "not" $2/g;
 	$str =~ s/([ )])AGUS([( ])/$1AND$2/g;
 	$str =~ s/([ )])NÓ([( ])/$1OR$2/g;
-	$str =~ s/([ ()"])GAN([( ])/$1NOT$2/g;
+	$str =~ s/([ ()"])GAN(["( ])/$1NOT$2/g;
 	$str =~ s/^GAN([( ])/NOT$2/g;
 	return $str;
 }
@@ -87,6 +87,7 @@ sub normalize_terms
 	(my $str, my $index) = @_;
 	if ($index =~ m/Y$/) {
 		$str = $caighdeanaitheoir->caighdean($str); # preserves AND, NOT, quotes, etc.
+		chop($str);
 	}
 	$str =~ s/([^ ()"]+)/normalize_term($1,$index)/eg;
 	return $str;
@@ -188,13 +189,13 @@ sub cruthaigh_toradh
 		$hash{$1} = $2;
 	}
 	close SONRAI;
-	if (length($hash{'title'}) > 100) {
-		$hash{'title'} = substr($hash{'title'},0,96)."...";
-	}
+	my $teid = $hash{'title'};
+	$teid = substr($teid,0,96)."..." if (length($teid) > 100);
+	$teid =~ s/¤/€/g;
 	$hash{'size'} = 1+$hash{'size'}/1024;
 	print "<!--m-->";
 	print "[".$hash{'format'}."]&nbsp;" unless ($hash{'format'} eq 'html');
-	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\" target=\"_top\">".$hash{'title'}."</a></span><br>\n";
+	print "<span class=\"mor\"><a href=\"".$hash{'url'}."\" target=\"_top\">".$teid."</a></span><br>\n";
 	print "<span class=\"beag\">$sliocht</span><br>\n";
 	$hash{'url'} =~ s/^[a-z]+:\/\///;
 	print "<span class=\"uainebeag\">".$hash{'url'}." - ".$hash{'size'}."k</span>";
@@ -223,13 +224,14 @@ sub cuardach {
 	my $pagerankdamp=1;
 	  # add this number if search terms appear in title
 	my $titlebonus=100000/$pagerankdamp;
+	my $notsearch = $query =~ m/([ ()"])NOT(["( ])/;
 
 	while ( my $result = $results->NextResult ) {
 		my $title=$result->Property( "swishdocpath" );
 		$title =~ /^([0-9]+)-([0-9]+)$/;
 		if ($cineal eq 'TEIDIL') {
-			$href->{$2}=$baserelevance - ($1-100000)/$pagerankdamp unless (exists($href->{$2}));
-			$href->{$2}+=$titlebonus;
+			$href->{$2}=$baserelevance - ($1-100000)/$pagerankdamp unless ($notsearch or exists($href->{$2}));
+			$href->{$2}+=$titlebonus if (exists($href->{$2}) and !$notsearch);
 		}
 		else {
 			$href->{$2}=$result->Property( "swishrank" ) - ($1-100000)/$pagerankdamp;
@@ -366,7 +368,7 @@ sub get_cgi_data {
 	}
 	# else just leave it as 0
 
-	if (defined($q->param( "neamhchaighdean" )) and $q->param( "neamhchaighdean" ) =~ m/./) {
+	if (defined($q->param( "neamhchaighdean" )) and $q->param( "neamhchaighdean" ) =~ m/^/) {
 		$inneacs .= 'Y';
 	}
 	else {
@@ -396,7 +398,7 @@ sub priomh {
 	$ionchur =~ s/'/\'/g;
 
 	open (FUN, ">>", "/home/httpd/aimsigh.log") or die "Could not open aimsigh log: $!\n";
-	print FUN "NORMALIZED SEARCH: $ionchur\n";
+	print FUN "$inneacs/$ionchur\n";
 	close FUN;
 
 	my %match_hash;
