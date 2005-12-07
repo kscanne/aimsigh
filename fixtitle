@@ -12,8 +12,26 @@ echo "Applied change to " `cat $TMPCHOMHAD | wc -l` " lines"
 rm -f $TMPCHOMHAD
 }
 
-find . -name '*.dat' | xargs grep -l "^title: Gan Teideal" | xargs egrep -l '^url: http://www\.nuacht\.com/story/' | xargs sed -i "s/^title: .*/title: Alt i Lá/"
 exit 0
+fixone 'Seanad Debates ' 'Díospóireachtaí Seanaid '
+fixone 'Dáil Debates ' 'Díospóireachtaí Dála '
+fixone 'Seanad Debate ' 'Díospóireacht Seanaid '
+fixone 'Dáil Debate ' 'Díospóireacht Dála '
+fixone 'Higher Education Authority . An tÚ' 'An tÚ'
+# RISKY
+fixone 'Press Releases' 'Preaseisiúintí'
+fixone ' - Information By Topic' ' Eolas De Réir Ábhair'
+fixone 'National Roads Authority \?:' 'An tÚdarás um Bóithre Náisiúnta:'
+fixone 'Article from An Ch' 'Alt ón Ch'
+fixone '  Oral Answers' '  Freagraí ó bhéal'
+fixone ' - Volume ' ' - Imleabhar '
+fixone '\([^a-zA-Z]\) Annual Report' '\1 Tuarascáil Bhliantúil'
+fixone 'Public Jobs -' 'Seirbhís Um Cheapacháin Phoiblí -'
+fixone 'Royal Irish Academy' 'Acadamh Ríoga na hÉireann'
+#  RISKY - tgrep manually first and fix ones like "Order Publications", etc.
+#fixone 'Publications' 'Foilseacháin'
+fixone 'State Examination Commission' 'Coimisiún na Scrúduithe Stáit'
+find . -name '*.dat' | xargs grep -l "^title: Gan Teideal" | xargs egrep -l '^url: http://www\.nuacht\.com/story/' | xargs sed -i "s/^title: .*/title: Alt i Lá/"
 fixone 'Department of the Taoiseach - Roinn an Taoisigh' 'Roinn an Taoisigh'
 fixone 'Department of the Taoiseach - ' 'Roinn an Taoisigh - '
 fixone 'Irish language residence' 'Aonad na Gaeilge'
@@ -80,8 +98,6 @@ fixone 'BBC - Northern Ireland - Irish -' 'BBC - Tuaisceart Éireann - An Ghaeilg
 fixone 'BBC - Northern Ireland - Irish Language -' 'BBC - Tuaisceart Éireann - An Ghaeilge -'
 fixone 'BBC - Northern Ireland - Irish Music' 'BBC - Tuaisceart Éireann - Ceol Éireannach'
 fixone ':: View topic ' ':: Topaic '
-fixone 'Seanad Debate' 'Díospóireacht Seanaid'
-fixone 'Dáil Debate' 'Díospóireacht Dála'
 fixone 'The Daltaí Boards' 'Cláriomrá Daltaí na Gaeilge'
 fixone 'The Pensions Board' 'An Bord Pinsean'
 fixone 'The Dormant Accounts Fund Disbursements Board' 'An Bord Eisíocaíochtaí Chiste na gCuntas Díomhaoin'
