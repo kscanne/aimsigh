@@ -7,19 +7,24 @@ fixone()
 {
 TMPCHOMHAD=`mktemp`
 echo "Fixing \"$1\"..."
-find . -name '*.dat' | xargs grep -l "^title: .*$1" | tee $TMPCHOMHAD | xargs sed -i "/^title: /s/$1/$2/"
-echo "Applied change to " `cat $TMPCHOMHAD | wc -l` " lines"
+find . -name '*.dat' | xargs grep -l "^title: .*$1" > $TMPCHOMHAD
+if [ -s $TMPCHOMHAD ]
+then
+	cat $TMPCHOMHAD | xargs sed -i "/^title: /s/$1/$2/"
+	echo "Applied change to " `cat $TMPCHOMHAD | wc -l` " lines"
+else
+	echo "Change not applied; no examples found..."
+fi
 rm -f $TMPCHOMHAD
 }
 
-exit 0
 fixone 'Seanad Debates ' 'Díospóireachtaí Seanaid '
 fixone 'Dáil Debates ' 'Díospóireachtaí Dála '
 fixone 'Seanad Debate ' 'Díospóireacht Seanaid '
 fixone 'Dáil Debate ' 'Díospóireacht Dála '
 fixone 'Higher Education Authority . An tÚ' 'An tÚ'
 # RISKY
-fixone 'Press Releases' 'Preaseisiúintí'
+#fixone 'Press Releases' 'Preaseisiúintí'
 fixone ' - Information By Topic' ' Eolas De Réir Ábhair'
 fixone 'National Roads Authority \?:' 'An tÚdarás um Bóithre Náisiúnta:'
 fixone 'Article from An Ch' 'Alt ón Ch'
