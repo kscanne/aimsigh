@@ -18,6 +18,22 @@ fi
 rm -f $TMPCHOMHAD
 }
 
+
+fixone 'NA GAEIL . THE GAELIC PEOPLE ' 'NA GAEIL '
+exit 0
+# sic - tobar.ie
+fixone 'mhúinteoiri' 'mhúinteoirí'
+# sic
+fixone 'Colaiste na bhFiann' 'Coláiste na bhFiann'
+fixone 'Better Government -' 'Rialtas Níos Fearr -'
+fixone 'Better Regulation -' 'Rialáil Níos Fearr -'
+fixone 'Welcome to the Railway Procurement Agency' 'An Ghníomhaireacht Um Fháil Iarnród'
+# sic
+fixone 'Sonrai an Ghrupa' 'Sonraí an Ghrúpa'
+fixone 'Cork City Council > Our Services: Corporate Affairs' 'Comhairle Cathrach Chorcaí > Seirbhísí: Cúrsaí Gnó'
+fixone 'Arts Council Ireland News, Information' 'An Chomhairle Ealaíon: Nuacht, Eolas'
+# sic!
+fixone 'Arts Council/An Chomhaile Ealaíon' 'An Chomhairle Ealaíon'
 fixone 'Seanad Debates ' 'Díospóireachtaí Seanaid '
 fixone 'Dáil Debates ' 'Díospóireachtaí Dála '
 fixone 'Seanad Debate ' 'Díospóireacht Seanaid '
