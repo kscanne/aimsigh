@@ -72,7 +72,7 @@ rm -f $TMPCHOMHAD
 }
 
 
-# irish_times
+irish_times
 aprn_fixer
 # embedded nbsp
 fixone 'Better Regulation.-' 'Rialáil Níos Fearr -'
