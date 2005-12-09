@@ -2,6 +2,59 @@
 
 cd /usr/local/share/crubadan/ga/sonrai
 
+irish_times()
+{
+echo "Fixing Irish Times titles"
+find . -name '*.dat' | xargs egrep -l '^url: http://www.ireland.com/gaeilge/teangabeo/[12][0-9]{3}/[0-9]{4}/' |
+while read cand
+do
+	DT=`egrep '^url: ' $cand | sed 's/^url: http:..www.ireland.com.gaeilge.teangabeo.//' | sed 's/\//-/' | sed 's/\/.*//'`
+	YEAR=`echo $DT | sed 's/-.*//'`
+	MONTH=`echo $DT | sed 's/.*-\(..\).*/\1/'`
+	DAY=`echo $DT | sed 's/.*-..//'`
+	M="Eanáir"
+	if [ $MONTH = "02" ]; then M="Feabhra"; fi
+	if [ $MONTH = "03" ]; then M="Márta"; fi
+	if [ $MONTH = "04" ]; then M="Aibreán"; fi
+	if [ $MONTH = "05" ]; then M="Bealtaine"; fi
+	if [ $MONTH = "06" ]; then M="Meitheamh"; fi
+	if [ $MONTH = "07" ]; then M="Iúil"; fi
+	if [ $MONTH = "08" ]; then M="Lúnasa"; fi
+	if [ $MONTH = "09" ]; then M="Meán Fómhair"; fi
+	if [ $MONTH = "10" ]; then M="Deireadh Fómhair"; fi
+	if [ $MONTH = "11" ]; then M="Samhain"; fi
+	if [ $MONTH = "12" ]; then M="Nollaig"; fi
+	sed -i "/^title: .*weekly/s/.*/title: An Teanga Bheo - $DAY $M $YEAR/" $cand
+done
+}
+
+
+aprn_fixer()
+{
+echo "Fixing APRN titles"
+find . -name '*.dat' | xargs egrep -l '^url: http://(republican-news.org|www.irlnet.com/aprn)/archive/[0-9]{4}/' |
+while read cand
+do
+	DT=`egrep '^url: ' $cand | sed 's/^url: http:..\(republican-news.org\|www.irlnet.com.aprn\).archive.//' | sed 's/\//-/' | sed 's/\/.*//'`
+	YEAR=`echo $DT | sed 's/-.*//'`
+	MONTH=`echo $DT | sed 's/.*-\([^0-9]*\).*/\1/'`
+	DAY=`echo $DT | sed 's/.*-[^0-9]*//'`
+	M="Eanáir"
+	if [ $MONTH = "February" ]; then M="Feabhra"; fi
+	if [ $MONTH = "March" ]; then M="Márta"; fi
+	if [ $MONTH = "April" ]; then M="Aibreán"; fi
+	if [ $MONTH = "May" ]; then M="Bealtaine"; fi
+	if [ $MONTH = "June" ]; then M="Meitheamh"; fi
+	if [ $MONTH = "July" ]; then M="Iúil"; fi
+	if [ $MONTH = "August" ]; then M="Lúnasa"; fi
+	if [ $MONTH = "September" ]; then M="Meán Fómhair"; fi
+	if [ $MONTH = "October" ]; then M="Deireadh Fómhair"; fi
+	if [ $MONTH = "November" ]; then M="Samhain"; fi
+	if [ $MONTH = "December" ]; then M="Nollaig"; fi
+	sed -i "/^title: AN PHOB/s/.*/title: An Phoblacht - $DAY $M $YEAR/" $cand
+done
+}
+
 # two args; first is regex to replace (BRE!), second is replacement
 fixone()
 {
@@ -19,14 +72,16 @@ rm -f $TMPCHOMHAD
 }
 
 
+# irish_times
+aprn_fixer
+# embedded nbsp
+fixone 'Better Regulation.-' 'Rialáil Níos Fearr -'
 fixone 'NA GAEIL . THE GAELIC PEOPLE ' 'NA GAEIL '
-exit 0
 # sic - tobar.ie
 fixone 'mhúinteoiri' 'mhúinteoirí'
 # sic
 fixone 'Colaiste na bhFiann' 'Coláiste na bhFiann'
 fixone 'Better Government -' 'Rialtas Níos Fearr -'
-fixone 'Better Regulation -' 'Rialáil Níos Fearr -'
 fixone 'Welcome to the Railway Procurement Agency' 'An Ghníomhaireacht Um Fháil Iarnród'
 # sic
 fixone 'Sonrai an Ghrupa' 'Sonraí an Ghrúpa'
@@ -125,5 +180,3 @@ fixone 'The Dormant Accounts Fund Disbursements Board' 'An Bord Eisíocaíochtaí C
 fixone 'Government of Ireland - Department of Finance' 'Rialtas na hÉireann - An Roinn Airgeadais'
 fixone 'Department of Foreign Affairs - Government of Ireland' 'An Roinn Gnóthaí Eachtracha - Rialtas na hÉireann'
 fixone 'European Constitution - Preamble - Department of Foreign Affairs - Ireland' 'Bunreacht na hEorpa - Brollach - An Roinn Gnóthaí Eachtracha - Rialtas na hÉireann'
-
-echo "Don't forget to rerun swish-e for TEIDIL index"
