@@ -1,14 +1,26 @@
 #!/bin/bash
 
-cd /usr/local/share/crubadan/ga/sonrai
+
+fix_la()
+{
+echo "Fixing Lá titles"
+cd /usr/local/share/crubadan/ga
+ugrep 'www\.nuacht\.com/story/[?]' | sed 's/:.*//' |
+while read x
+do
+	TAISCE=`echo $x | sed 's/sonrai/taisce/' | sed 's/\.dat/.html/'`
+	TEIDEAL=`cat $TAISCE | tr -d '\015' | egrep -m 1 '<b>' | sed 's/^[^<>]*>//' | sed 's/<[^>]*>//g' | sed 's/ *$//' | sed 's/^ *//' | sed 's@/@\\/@g'`
+	sed -i "/^title: /s/.*/title: Alt i <i>Lá<\/i>: $TEIDEAL/" $x
+done
+}
 
 irish_times()
 {
 echo "Fixing Irish Times titles"
-find . -name '*.dat' | xargs egrep -l '^url: http://www.ireland.com/gaeilge/teangabeo/[12][0-9]{3}/[0-9]{4}/' |
+find . -name '*.dat' | xargs egrep -l '^url: http://www.ireland.com/gaeilge/teangabeo/[012][0-9]{3}' |
 while read cand
 do
-	DT=`egrep '^url: ' $cand | sed 's/^url: http:..www.ireland.com.gaeilge.teangabeo.//' | sed 's/\//-/' | sed 's/\/.*//'`
+	DT=`egrep '^url: ' $cand | sed 's/teangabeo\/0/teangabeo\/1999\/0/' | sed 's/teangabeo\/\(1[012]\)/teangabeo\/1999\/\1/' | sed 's/^url: http:..www.ireland.com.gaeilge.teangabeo.//' | sed 's/\//-/' | sed 's/\/.*//'`
 	YEAR=`echo $DT | sed 's/-.*//'`
 	MONTH=`echo $DT | sed 's/.*-\(..\).*/\1/'`
 	DAY=`echo $DT | sed 's/.*-..//'`
@@ -24,7 +36,12 @@ do
 	if [ $MONTH = "10" ]; then M="Deireadh Fómhair"; fi
 	if [ $MONTH = "11" ]; then M="Samhain"; fi
 	if [ $MONTH = "12" ]; then M="Nollaig"; fi
-	sed -i "/^title: .*weekly/s/.*/title: An Teanga Bheo - $DAY $M $YEAR/" $cand
+	ANSWER="title: An Teanga Bheo - $DAY $M $YEAR"
+	CURRENT=`egrep '^title: ' $cand`
+	if [ "$ANSWER" != "$CURRENT" ]
+	then
+		sed -i "/^title: /s/.*/$ANSWER/" $cand
+	fi
 done
 }
 
@@ -72,6 +89,8 @@ rm -f $TMPCHOMHAD
 }
 
 
+fix_la
+cd /usr/local/share/crubadan/ga/sonrai
 irish_times
 aprn_fixer
 # embedded nbsp
@@ -107,7 +126,6 @@ fixone 'Royal Irish Academy' 'Acadamh Ríoga na hÉireann'
 #  RISKY - tgrep manually first and fix ones like "Order Publications", etc.
 #fixone 'Publications' 'Foilseacháin'
 fixone 'State Examination Commission' 'Coimisiún na Scrúduithe Stáit'
-find . -name '*.dat' | xargs grep -l "^title: Gan Teideal" | xargs egrep -l '^url: http://www\.nuacht\.com/story/' | xargs sed -i "s/^title: .*/title: Alt i Lá/"
 fixone 'Department of the Taoiseach - Roinn an Taoisigh' 'Roinn an Taoisigh'
 fixone 'Department of the Taoiseach - ' 'Roinn an Taoisigh - '
 fixone 'Irish language residence' 'Aonad na Gaeilge'
