@@ -33,7 +33,7 @@ installhtml :
 	$(INSTALL_DATA) cabhair.html ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
-	(cd $(crubadandir); cat PILLAGED | sed 's/^/^url: .*/' > PILLAGED.2; find sonrai -name '*.dat' | xargs egrep -f PILLAGED.2 | egrep -v 'url: (http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary|http://www.tobar.ie/vb/)'; rm -f PILLAGED.2)
+	(cd $(crubadandir); egrep -f PILLAGED MANIFEST | egrep -v '(http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary|http://www.tobar.ie/vb/|http://www.peoplesrepublicofcork)')
 
 killdupes : FORCE
 	rm -f dupescr dupelog
