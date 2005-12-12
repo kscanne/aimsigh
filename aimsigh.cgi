@@ -145,18 +145,18 @@ sub create_flattened {
 sub bain_sliocht_as
 {
 	(my $docId, my $patrun, my $inneacs) = @_;
-	my $sliocht='Gan sliocht';
-	my $line=-1;
+	my $line=3;     # if no match, just show first sentence after <DOC>,etc
+			# should only happen if match occurs in title only
+			# which only happens if title is translated?
 	open(SONRAI, "<", "/snapshot/aimsigh/$inneacs/$docId.txt") or die "Could not open tokenized file $inneacs/$docId.txt: $!\n";
 	while (<SONRAI>) {
 		if (/$patrun/) {
-			chomp;
-			$sliocht=$_;
 			$line=$.;
 			last;
 		}
 	}
 	close SONRAI;
+	my $sliocht='Gan sliocht';  # should never be this if doc is nonempty
 	open(CLEAN, "<", "/snapshot/aimsigh/ABAIRT/$docId.txt") or die "Could not open clean file ABAIRT/$docId.txt: $!\n";
 	while (<CLEAN>) {
 		if ($. == $line) {
@@ -166,13 +166,12 @@ sub bain_sliocht_as
 		}
 	}
 	close CLEAN;
+
 	#  now clean it up
 	$sliocht =~ s/----+/---/g;
 	$sliocht =~ s/\+\+\+\++/+++/g;
 	$sliocht =~ s/\.\.\.\.+/.../g;
-	if (length($sliocht) > 300) {
-		$sliocht = substr($sliocht,0,296)."...";
-	}
+	$sliocht = substr($sliocht,0,296)."..." if (length($sliocht) > 300);
 
 	return $sliocht;
 }
@@ -350,6 +349,7 @@ sub get_cgi_data {
 
 	bail_out unless (defined($q->param( "ionchur" )));
 	my( $ionchur ) = $q->param( "ionchur" ) =~ /^(.+)$/;
+	bail_out unless ($ionchur);
 	$ionchur = decode("UTF-8", $ionchur);  # utf-8 from CGI, convert to perl string
 	$ionchur = decode_URL($ionchur);   # if inputs were post data
 
