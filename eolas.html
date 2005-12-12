@@ -249,7 +249,7 @@ retrieved are all incorrect, referring to <i>tAcht</i>:<br><br>
 <b><i>tacht</i></b>: <a href="http://www.google.com/search?q=tacht">Google</a>&nbsp;&nbsp;<a href="http://borel.slu.edu/cgi-bin/aimsigh.cgi?ionchur=tacht&feicthe=0&claochlu=NN">aimsigh.com</a><br>
 </p>
 <p>
-<b>7. Automatic translation of English document titles</b><br>
+<b>7. Automatic translation and augmentation of document titles</b><br>
 One of my main interests is in machine translation, and I have
 a rudimentary system in place for translating
 English text to Irish. 
@@ -263,13 +263,26 @@ Or bilingual titles like "TG4 - Irish language television channel - Teilifis Gae
 searching (since we assume primarily Irish language search terms
 will be used) and also a more pleasing Irish-only visual experience
 when scanning results.
-In addition, for sites with many Irish documents but 
-useless titles (like the "Teanga Bheo" pages, which are all titled
-"An Teanga Bheo - The Irish Times weekly Irish language site"),
-the title is translated and then augmented with
-additional information to help clarify the contents of the
-document (e.g. the date of publication for the Teanga Bheo documents,
-which can be extracted from the URL).
+</p>
+<p>
+In addition, we augment useless titles with additional 
+information to help clarify the contents of the document.
+Here "useless" means, in the worst case, no title at all, as is the case 
+for articles in the newspaper <a href="http://www.nuacht.com/"><i>Lá</i></a>,
+but also refers to situations in which the title, even if translated, fails
+to provide useful clues as to the contents of the document, or fails
+to distinguish the document from others on the site; good examples
+are pages from the Irish Times <i>Teanga Bheo</i> site, 
+the majority of which are titled simply
+"An Teanga Bheo - The Irish Times weekly Irish language site".
+For the <i>Lá</i> articles, we do our best to extract the
+title from the body of the HTML document and construct a title from that.
+For the <i>Teanga Bheo</i> articles, it is possible to extract the date of
+publication from the URL; this is translated to Irish and appended
+to the title.  Similar tricks are used for a number of other sites.
+Here are a couple of sample queries illustrating these points:<br><br>
+<b><i>tionscnamh Chomsky</i></b>: <a href="http://www.google.com/search?q=tionscnamh+Chomsky">Google</a>&nbsp;&nbsp;<a href="http://borel.slu.edu/cgi-bin/aimsigh.cgi?ionchur=tionscnamh+Chomsky&feicthe=0&claochlu=NN">aimsigh.com</a><br>
+<b><i>ollscriosta Gilligan</i></b>: <a href="http://www.google.com/search?q=ollscriosta+Gilligan">Google</a>&nbsp;&nbsp;<a href="http://borel.slu.edu/cgi-bin/aimsigh.cgi?ionchur=ollscriosta+Gilligan&feicthe=0&claochlu=NN">aimsigh.com</a><br>
 </p>
 <p>
 <b>8. Manually-curated document database</b><br>
@@ -279,9 +292,9 @@ On the other hand, once the Irish documents have been separated
 from the rest, the small size of the resulting database
 (hundreds of thousands of documents vs. billions) is a great
 advantage.      On the one hand, there seem to be quite a few
-Irish documents out there that are not indexed at all by Google
-(examples linked below); I suspect that we had better luck in turning these
-up by focusing our crawling on a relatively small number (thousands)
+Irish documents (thousands) out there that are not indexed at all by Google
+(some examples linked below); I suspect that we had better luck in
+turning these up by focusing our crawling on a relatively small number
 of especially productive (mostly .ie) domains:<br><br>
 <b><i>TnaG mioncheisteanna</i></b>: <a href="http://www.google.com/search?q=TnaG+mioncheisteanna">Google</a>&nbsp;&nbsp;<a href="http://borel.slu.edu/cgi-bin/aimsigh.cgi?ionchur=TnaG+mioncheisteanna&feicthe=0&claochlu=NN">aimsigh.com</a><br>
 <b><i>Aifreann Cochlainn</i></b>: <a href="http://www.google.com/search?q=Aifreann+Cochlainn">Google</a>&nbsp;&nbsp;<a href="http://borel.slu.edu/cgi-bin/aimsigh.cgi?ionchur=Aifreann+Cochlainn&feicthe=0&claochlu=NN">aimsigh.com</a><br>
