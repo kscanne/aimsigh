@@ -93,6 +93,8 @@ fix_la
 cd /usr/local/share/crubadan/ga/sonrai
 irish_times
 aprn_fixer
+fixone 'Untitled Document$' 'Gan Teideal'
+fixone '[Uu]ntitled *$' 'Gan Teideal'
 # embedded nbsp
 fixone 'Better Regulation.-' 'Rialáil Níos Fearr -'
 fixone 'NA GAEIL . THE GAELIC PEOPLE ' 'NA GAEIL '
@@ -140,8 +142,6 @@ fixone 'Heritage Ireland - ' 'Oidhreacht na hÉireann - '
 fixone 'Department of Community, Rural and Gaeltacht Affairs' 'An Roinn Gnóthaí Pobail, Tuaithe agus Gaeltachta'
 fixone 'Fáilte go Cló Iar-Chonnachta .CIC..  - Welcome to Cló Iar-Chonnachta .CIC.' 'Fáilte go Cló Iar-Chonnachta (CIC)'
 fixone 'TG4 - Irish language television channel - Teilifis Gaeilge' 'TG4 - Teilifís Ghaeilge'
-fixone 'Untitled Document$' 'Gan Teideal'
-fixone 'Untitled$' 'Gan Teideal'
 fixone 'Department of Education . Science -' 'An Roinn Oideachais Agus Eolaíochta -'
 fixone '2003 Special Olympics' 'Cluichí Oilimpeacha Speisialta 2003'
 fixone 'Ombudsman.s Annual Report' 'Tuarascáil Bhliantúil an Ombudsman'
