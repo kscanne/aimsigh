@@ -1,0 +1,18 @@
+#!/bin/bash
+
+cd /usr/local/share/crubadan/ga
+find ciu -name '*.txt' | xargs egrep -l 'Ã' |
+while read x
+do
+	BADZ=`egrep -o 'Ã' $x | wc -l`
+	OK=`egrep -o 'á' $x | wc -l`
+	if [ $BADZ -gt $OK ]
+	then
+		echo "$x"
+	fi
+done |
+while read y
+do
+	HTMLFILE=`echo $y | sed 's/ciu/taisce/' | sed 's/txt/html/'`
+	echo "vilistextum -y UTF-8 --no-image --remove-empty-alt -errorlevel 0 $HTMLFILE - | recode -f \"u8..iso-8859-1\" > $y"
+done
