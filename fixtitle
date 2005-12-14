@@ -14,6 +14,12 @@ do
 done
 }
 
+slaiseanna()
+{
+echo "Fixing slaiseanna when sure"
+find . -name '*.dat' | xargs egrep '^title:.*[aeiouAEIOU]/' | egrep '\[Aireacha\]' | sed 's/:.*//' | xargs sed -i 's/a\//á/g; s/e\//é/g; s/i\//í/g; s/o\//ó/g; s/u\//ú/g; s/A\//Á/g; s/E\//É/g; s/I\//Í/g; s/O\//Ó/g; s/U\//Ú/g'
+}
+
 irish_times()
 {
 echo "Fixing Irish Times titles"
@@ -91,6 +97,8 @@ rm -f $TMPCHOMHAD
 
 fix_la
 cd /usr/local/share/crubadan/ga/sonrai
+#  careful - run script from MAINT first
+#slaiseanna
 irish_times
 aprn_fixer
 fixone 'Untitled Document$' 'Gan Teideal'
