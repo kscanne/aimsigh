@@ -44,17 +44,6 @@ killdupes : FORCE
 	mv dupe.tmp dupescr
 	echo 'look at dupescr and then bash it to actually kill the dupes'
 
-index : FORCE
-	perl reamhinneacs ABAIRT
-	perl reamhinneacs NNN
-	perl reamhinneacs YNN
-	perl reamhinneacs YYN
-	perl reamhinneacs ABAIRT-CH
-	perl reamhinneacs NNY
-	perl reamhinneacs YNY
-	perl reamhinneacs YYY
-	bash inneacs
-
 clean :
 	rm -f *.o
 FORCE :
