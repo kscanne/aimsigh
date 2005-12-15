@@ -168,6 +168,8 @@ sub bain_sliocht_as
 	close CLEAN;
 
 	#  now clean it up
+	$sliocht =~ s/____+/___/g;
+	$sliocht =~ s/====+/===/g;
 	$sliocht =~ s/----+/---/g;
 	$sliocht =~ s/\+\+\+\++/+++/g;
 	$sliocht =~ s/\.\.\.\.+/.../g;
