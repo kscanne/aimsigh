@@ -101,6 +101,7 @@ cd /usr/local/share/crubadan/ga/sonrai
 #slaiseanna
 irish_times
 aprn_fixer
+fixone 'SourceForge.net CVS Repository - markup' 'Stór sonraí CVS ag SourceForge.net - marcáil'
 fixone 'Untitled Document$' 'Gan Teideal'
 fixone '[Uu]ntitled *$' 'Gan Teideal'
 # embedded nbsp
@@ -114,10 +115,14 @@ fixone 'Better Government -' 'Rialtas Níos Fearr -'
 fixone 'Welcome to the Railway Procurement Agency' 'An Ghníomhaireacht Um Fháil Iarnród'
 # sic
 fixone 'Sonrai an Ghrupa' 'Sonraí an Ghrúpa'
+# sic!
+fixone 'Arts Council.An Chomhaile Ealaíon' 'An Chomhairle Ealaíon'
+fixone ' - Wikipedia$' ' - Vicipéid'
+fixone ' - Wikiquote$' ' - Vicísliocht'
+fixone ' - Wikibooks$' ' - Vicíleabhair'
+fixone ' - Wiktionary$' ' - Vicífhoclóir'
 fixone 'Cork City Council > Our Services: Corporate Affairs' 'Comhairle Cathrach Chorcaí > Seirbhísí: Cúrsaí Gnó'
 fixone 'Arts Council Ireland News, Information' 'An Chomhairle Ealaíon: Nuacht, Eolas'
-# sic!
-fixone 'Arts Council/An Chomhaile Ealaíon' 'An Chomhairle Ealaíon'
 fixone 'Seanad Debates ' 'Díospóireachtaí Seanaid '
 fixone 'Dáil Debates ' 'Díospóireachtaí Dála '
 fixone 'Seanad Debate ' 'Díospóireacht Seanaid '
@@ -179,7 +184,6 @@ fixone 'eolas-ibi Messages : Message \([0-9]*\) of ' 'Teachtaireachtaí eolas-ibi
 fixone 'Arts Council Ireland News - Press Releases' 'An Chomhairle Ealaíon - Preasráitis'
 fixone 'Office of the Ombudsman' 'Oifig an Ombudsman'
 fixone 'Office of the Information Commissioner' 'Oifig an Choimisinéara Faisnéise'
-fixone ' - Wikipedia$' ' - Vicipéid'
 fixone 'SEANCHAS-L Archives ' 'Cartlann SEANCHAS-L '
 fixone 'GAELIC-L Archives ' 'Cartlann GAELIC-L '
 fixone 'GAEILGE-A Archives ' 'Cartlann GAEILGE-A '
