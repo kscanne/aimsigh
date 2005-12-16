@@ -2,5 +2,5 @@
 TEMPF=`mktemp`
 togail ga api 400
 cd /usr/local/share/crubadan/ga
-cat TOCRAWL | sed 's/.*/<a href="&">/' | get_refs.pl 'http://borel.slu.edu/' > $TEMPF
+cat TOCRAWL | sed 's/.*/<a href="&">/' | get_refs.pl 'http://borel.slu.edu/' | keepif -n DEANTA latin-1 | egrep -v -f PILLAGED > $TEMPF
 mv -f $TEMPF TOCRAWL
