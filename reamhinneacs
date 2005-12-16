@@ -107,24 +107,42 @@ else {   # ..Y
 }
 my $range="/snapshot/aimsigh/$cineal";
 
-opendir DIRH, $base or die "could not open $base: $!\n";
-foreach my $doctxt (readdir DIRH) {
-	next if $doctxt !~ /\.txt$/;
-#	print "Processing document $doctxt for $cineal index...\n";
-	my $sprioc = "$range/$doctxt";
-	my $foinse = "$base/$doctxt";
-	my $doit = 0;
-	if (-e $sprioc) {
-		my @stat1 = stat($foinse);
-		my @stat2 = stat($sprioc);
-		$doit = ($stat1[9] > $stat2[9]);
-		print "Processing $doctxt (out of date)...\n" if $doit;
-	}
-	else {
-		$doit=1;
+sub do_from_queue
+{
+	open(ANCIU, "<", "/usr/local/share/crubadan/ga/ANCIU") or die "could not open ANCIU: $!\n";
+	while (<ANCIU>) {
+		my $doctxt = "$_.txt";
 		print "Processing $doctxt (first time)...\n";
+		process_me("$base/$doctxt", "$range/$doctxt");
 	}
-	process_me($foinse, $sprioc) if ($doit);
+	close ANCIU;
 }
-closedir DIRH;
+
+sub do_from_timestamps
+{
+	opendir DIRH, $base or die "could not open $base: $!\n";
+	foreach my $doctxt (readdir DIRH) {
+		next if $doctxt !~ /\.txt$/;
+	#	print "Processing document $doctxt for $cineal index...\n";
+		my $sprioc = "$range/$doctxt";
+		my $foinse = "$base/$doctxt";
+		my $doit = 0;
+		if (-e $sprioc) {
+			my @stat1 = stat($foinse);
+			my @stat2 = stat($sprioc);
+			$doit = ($stat1[9] > $stat2[9]);
+			print "Processing $doctxt (out of date)...\n" if $doit;
+		}
+		else {
+			$doit=1;
+			print "Processing $doctxt (first time)...\n";
+		}
+		process_me($foinse, $sprioc) if ($doit);
+	}
+	closedir DIRH;
+}
+
+
+# do_from_timestamps();
+do_from_queue();
 exit 0;
