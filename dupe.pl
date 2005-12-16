@@ -145,6 +145,7 @@ while (<MANIFEST>) {
 }
 close MANIFEST;
 #closedir DIRH;
+print TORTHAI "togail ga cman\n";
 close TORTHAI;
 close LOGCHOMHAD;
 #close VIMDIFF;

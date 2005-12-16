@@ -10,3 +10,4 @@ while read x
 do
 	dockill "$x"
 done
+togail ga cman

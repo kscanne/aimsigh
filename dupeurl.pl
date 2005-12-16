@@ -14,5 +14,7 @@ while (<MAN>) {
 		$hash{$1} = $2;
 	}
 }
+close MAN;
+print "togail ga cman\n";
 
 exit 0;
