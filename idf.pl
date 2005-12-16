@@ -66,6 +66,7 @@ sub tfidf_byqueue
 {
 	open (ANCIU, "<", "/usr/local/share/crubadan/ga/ANCIU") or die "could not open ANCIU: $!\n";
 	while (<ANCIU>) {
+		chomp;
 		my $doctxt = "$_.txt";
 		print "Computing tfidf for $doctxt (first time)...\n";
 		do_one_file("$base/$doctxt", "$range/$doctxt");

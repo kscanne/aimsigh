@@ -111,6 +111,7 @@ sub do_from_queue
 {
 	open(ANCIU, "<", "/usr/local/share/crubadan/ga/ANCIU") or die "could not open ANCIU: $!\n";
 	while (<ANCIU>) {
+		chomp;
 		my $doctxt = "$_.txt";
 		print "Processing $doctxt (first time)...\n";
 		process_me("$base/$doctxt", "$range/$doctxt");

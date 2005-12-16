@@ -65,6 +65,7 @@ sub byqueue
 {
 	open(ANCIU, "<", "$crub/ANCIU") or die "could not open ANCIU: $!\n";
 	while (<ANCIU>) {
+		chomp;
 		my $doctxt="$_.txt";
 		my $sprioc = "$range/$doctxt";
 		my $foinse = "$crub/ciu/$doctxt";
