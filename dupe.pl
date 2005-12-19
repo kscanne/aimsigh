@@ -31,7 +31,6 @@ my $VERYSPECIAL=4;    # how many among the most unusual terms must appear
 
 open (TORTHAI, ">", "./dupescr") or die "Could not open script file dupescr: $!\n";
 open (LOGCHOMHAD, ">", "./dupelog") or die "Could not open log file dupelog: $!\n";
-#open (VIMDIFF, ">", "./dupevim") or die "Could not open script file dupevim: $!\n";
 print "Logs opened...\n";
 
 sub make_a_decision
@@ -40,7 +39,6 @@ sub make_a_decision
 	if ($cosine > 0.999) {
 		print "sim($docnum,$cand)=$cosine\n";
 		print TORTHAI "dockill $cand\n";
-#		print VIMDIFF "vimdiff $crubadan/ciu/$docnum.txt $crubadan/ciu/$cand.txt\n";
 		my $url1;
 		my $url2;
 		open (INFO, "<", "$crubadan/sonrai/$docnum.dat") or die "Could not open data file $docnum: $!\n";
@@ -67,14 +65,11 @@ sub make_a_decision
 
 print "About to open MANIFEST...\n";
 open (MANIFEST, "<", "$crubadan/MANIFEST") or die "Could not open MANIFEST: $!\n";
-# opendir DIRH, $base or die "could not open $base: $!\n";
-# foreach my $doctxt (readdir DIRH) {
 $dummy = <MANIFEST>;  # eat num. lines
 print "Opened, numlines chomped, beginning to process tfidf files...\n";
 while (<MANIFEST>) {
 	chomp;
 	(my $dummy, my $doctxt) = m/^([^ ]+) ([0-9]+\.txt)$/;
-#	next if $doctxt !~ /\.txt$/;
 	(my $docnum) = $doctxt =~ /^([0-9]+)/;
 	$N++;
 	print "$N..." if ($N % 100 == 0);
@@ -89,19 +84,18 @@ while (<MANIFEST>) {
 	}
 	close FOINSE;
 }
-#closedir DIRH;
 close MANIFEST;
 print "Done reading top-tens from tfidf files...\n";
 $N=0;
-print "Now rereading MANIFEST and looking for dupes...\n";
-open (MANIFEST, "<", "$crubadan/MANIFEST") or die "Could not open MANIFEST: $!\n";
-# opendir DIRH, $base or die "could not open $base: $!\n";
-# foreach my $doctxt (readdir DIRH) {
-$dummy = <MANIFEST>;  # eat num. lines
-while (<MANIFEST>) {
+print "Now rereading document list and looking for dupes...\n";
+# open (MANIFEST, "<", "$crubadan/MANIFEST") or die "Could not open MANIFEST: $!\n";
+open (ANCIU, "<", "$crubadan/ANCIU") or die "Could not open doclist: $!\n";
+#$dummy = <MANIFEST>;  # eat num. lines
+#while (<MANIFEST>) {
+while (<ANCIU>) {
 	chomp;
-	(my $dummy, my $doctxt) = m/^([^ ]+) ([0-9]+\.txt)$/;
-#	next if $doctxt !~ /\.txt$/;
+#	(my $dummy, my $doctxt) = m/^([^ ]+) ([0-9]+\.txt)$/;
+	my $doctxt = "$_.txt";
 	$N++;
 	print "$N..." if ($N % 100 == 0);
 	my $docnum = $doctxt;
@@ -143,11 +137,10 @@ while (<MANIFEST>) {
 	}
 	close FOINSE;
 }
-close MANIFEST;
-#closedir DIRH;
+#close MANIFEST;
+close ANCIU;
 print TORTHAI "togail ga cman\n";
 close TORTHAI;
 close LOGCHOMHAD;
-#close VIMDIFF;
 
 exit 0;
