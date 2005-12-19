@@ -94,6 +94,29 @@ sub normalize_terms
 	return $str;
 }
 
+sub create_dictionary_href
+{
+	(my $tearma) = @_;
+	if ( $tearma eq 'AGUS' or $tearma eq 'NÓ' or $tearma eq 'GAN' ) {
+		$tearma = "<i>$tearma</i>";
+	}
+	else {
+		# leading/trailing -'?
+		my $converted = encode("ISO-8859-1", $tearma);
+		$converted =~ s/(\W+)/uc(sprintf("%%%2.2x",ord($1)))/eg;
+		$tearma = "<a href='http://www.englishirishdictionary.com/dictionary?dict=ie&word=$converted' title='D&eacute;an cuardach i bhfocl&oacute;ir Gaeilge-B&eacute;arla'>$tearma</a>";
+	}
+	return $tearma;
+}
+
+sub create_dictionary_hrefs
+{
+	(my $iarratas) = @_;
+	$iarratas =~ s/([^ ()"]+)/create_dictionary_href($1);/eg;
+	$iarratas =~ s/"/&quot;/g;
+	return $iarratas;
+}
+
 # see "loosen" below
 sub partner
 {
@@ -283,7 +306,7 @@ FOOTER
 
 sub generate_html_output {
 
-	(my $matchesref, my $hitz, my $feicthe, my $inneacs, my $postdata, my $ionchur) = @_;
+	(my $matchesref, my $hitz, my $feicthe, my $inneacs, my $postdata, my $ionchur, my $pristine) = @_;
 
 	my $num = scalar(@$matchesref);
 	if ($num == 0) {
@@ -301,7 +324,7 @@ sub generate_html_output {
 		$neamh='&neamhchaighdean' if ($inneacs =~ /Y$/);
 		(my $claoch) = $inneacs =~ m/^(..)(.)$/;
 		$hitz = $num if ($num > $hitz);    # shouldn't happen...
-		print "<b>Cáipéisí $start - $end as $hitz á dtaispeáint ó <a href=\"http://www.aimsigh.com/\" target=\"_top\">aimsigh.com</a>:</b><br><br><!--a-->\n";
+		print "Cáipéisí <b>$start</b> - <b>$end</b> as <b>$hitz</b> le haghaidh <b>".create_dictionary_hrefs($pristine)."</b> ó <a href=\"http://www.aimsigh.com/\" target=\"_top\">aimsigh.com</a>:</b><br><br><!--a-->\n";
 	
 		my $patrun = create_flattened($ionchur);
 		cruthaigh_toradh($matchesref->[$_-1], $patrun, $inneacs) for ($start..$end);
@@ -413,7 +436,7 @@ sub priomh {
 	my @matches = (sort {$match_hash{$b} <=> $match_hash{$a}} keys %match_hash);
 	generate_html_header($inneacs, $pristine);
 	generate_html_output(\@matches, $iomlan, $feicthe,
-				$inneacs, encode_URL($pristine),$ionchur);
+				$inneacs, encode_URL($pristine),$ionchur,$pristine);
 	generate_html_footer();
 
 }
