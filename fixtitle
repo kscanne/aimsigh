@@ -78,6 +78,40 @@ do
 done
 }
 
+nics_fixer()
+{
+echo "Fixing NICS titles"
+find . -name '*.dat' | xargs egrep -l '^url: http://www.nics.gov.uk/press/(edu|hss)/' |
+while read cand
+do
+	DT=`egrep '^url: ' $cand | sed 's/^url: http:..www.nics.gov.uk.press.....//' | sed 's/^\([0-9]*\).*/\1/'`
+	FLAV=`egrep '^url: ' $cand | sed 's/^url: http:..www.nics.gov.uk.press.....[^-]*-//' | sed 's/\..*//'`
+	YEAR=`echo $DT | sed 's/^\(..\).*/20\1/'`
+	MONTH=`echo $DT | sed 's/^..\(..\).*/\1/'`
+	DAY=`echo $DT | sed 's/^....//'`
+	M="Eanáir"
+	if [ $MONTH = "02" ]; then M="Feabhra"; fi
+	if [ $MONTH = "03" ]; then M="Márta"; fi
+	if [ $MONTH = "04" ]; then M="Aibreán"; fi
+	if [ $MONTH = "05" ]; then M="Bealtaine"; fi
+	if [ $MONTH = "06" ]; then M="Meitheamh"; fi
+	if [ $MONTH = "07" ]; then M="Iúil"; fi
+	if [ $MONTH = "08" ]; then M="Lúnasa"; fi
+	if [ $MONTH = "09" ]; then M="Meán Fómhair"; fi
+	if [ $MONTH = "10" ]; then M="Deireadh Fómhair"; fi
+	if [ $MONTH = "11" ]; then M="Samhain"; fi
+	if [ $MONTH = "12" ]; then M="Nollaig"; fi
+	if [ "$FLAV" = "hss" ]
+	then
+		sed -i "/^title: *[0-9]*[a-z]*-hss/s/.*/title: Preasráiteas $DAY $M $YEAR - Roinn Sláinte, Seirbhísí Sóisialta agus Sábháilteachta Poiblí/" $cand
+	fi
+	if [ "$FLAV" = "edu" ]
+	then
+		sed -i "/^title: *[0-9]*[a-z]*-edu/s/.*/title: Preasráiteas $DAY $M $YEAR - An Roinn Oideachais/" $cand
+	fi
+done
+}
+
 # two args; first is regex to replace (BRE!), second is replacement
 fixone()
 {
@@ -97,6 +131,9 @@ rm -f $TMPCHOMHAD
 
 fix_la
 cd /usr/local/share/crubadan/ga/sonrai
+fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-hss \([^ ]\)' '\1'
+fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-edu \([^ ]\)' '\1'
+nics_fixer
 #  careful - run script from MAINT first
 #slaiseanna
 irish_times
@@ -117,10 +154,13 @@ fixone 'Welcome to the Railway Procurement Agency' 'An Ghníomhaireacht Um Fháil 
 fixone 'Sonrai an Ghrupa' 'Sonraí an Ghrúpa'
 # sic!
 fixone 'Arts Council.An Chomhaile Ealaíon' 'An Chomhairle Ealaíon'
+fixone '  [*]* TITLE [*]*' 'Feidhmeannas an Tuaiscirt - Preasráiteas'
 fixone ' - Wikipedia$' ' - Vicipéid'
 fixone ' - Wikiquote$' ' - Vicísliocht'
 fixone ' - Wikibooks$' ' - Vicíleabhair'
 fixone ' - Wiktionary$' ' - Vicífhoclóir'
+fixone 'About RTÉ' 'Maidir le RTÉ'
+fixone 'Department of Health, Social Services and Public Safety' 'Roinn Sláinte, Seirbhísí Sóisialta agus Sábháilteachta Poiblí'
 fixone 'Primary Curriculum Support Programme' 'Clár Tacaíochta don Churaclam Bunscoile'
 fixone 'Leaving Certificate Vocational Programme' 'Gairmchlár na hArdteistiméireachta'
 fixone 'Irish Cervical Screening Programme' 'Clár na hÉireann um Scagadh Ceirbheacsach'
@@ -160,6 +200,7 @@ fixone 'Department of Community, Rural and Gaeltacht Affairs' 'An Roinn Gnóthaí 
 fixone 'Fáilte go Cló Iar-Chonnachta .CIC..  - Welcome to Cló Iar-Chonnachta .CIC.' 'Fáilte go Cló Iar-Chonnachta (CIC)'
 fixone 'TG4 - Irish language television channel - Teilifis Gaeilge' 'TG4 - Teilifís Ghaeilge'
 fixone 'Department of Education . Science -' 'An Roinn Oideachais Agus Eolaíochta -'
+fixone ' Department of Education \([0-9]\)' ' An Roinn Oideachais - \1'
 fixone '2003 Special Olympics' 'Cluichí Oilimpeacha Speisialta 2003'
 fixone 'Ombudsman.s Annual Report' 'Tuarascáil Bhliantúil an Ombudsman'
 fixone 'FÁS Annual Report . Financial Statements' 'FÁS: Tuarascáil Bhliantúil agus Ráitis Airgeadais'
