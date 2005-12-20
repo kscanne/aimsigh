@@ -1,4 +1,5 @@
 #!/bin/bash
+#  since togail works with percentages, this check is not redundant!
 cd /usr/local/share/crubadan/ga
 find ciu -name '*.txt' | xargs egrep -i -l '\b(gu|aig|ri|tha)\b' |
 while read x
