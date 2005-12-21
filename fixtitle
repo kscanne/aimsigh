@@ -155,17 +155,20 @@ rm -f $TMPCHOMHAD
 
 fix_la
 cd /usr/local/share/crubadan/ga/sonrai
+fixone 'Learning Irish Gaelic: Lesson ' 'Foghlaim na Gaeilge: Ceacht '
 fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-hss \([^ ]\)' '\1'
 fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-edu \([^ ]\)' '\1'
 nics_fixer
-#  careful - run script from MAINT first
-#slaiseanna
+#  currently safe since only fixes [Aireacha] titles
+#   Others are rare enough to fix manually - see MAINT
+slaiseanna
 irish_times
 aprn_fixer
 fix_utf_titles
 fixone 'SourceForge.net CVS Repository - markup' 'Stór sonraí CVS ag SourceForge.net - marcáil'
-fixone 'Untitled Document$' 'Gan Teideal'
-fixone '[Uu]ntitled *$' 'Gan Teideal'
+# lowercase "teideal" matches what's in togail, swishy.pl
+fixone 'Untitled Document$' 'Gan teideal'
+fixone '[Uu]ntitled *$' 'Gan teideal'
 # embedded nbsp
 fixone 'Better Regulation.-' 'Rialáil Níos Fearr -'
 fixone 'NA GAEIL . THE GAELIC PEOPLE ' 'NA GAEIL '
