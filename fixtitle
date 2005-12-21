@@ -1,5 +1,29 @@
 #!/bin/bash
 
+fix_utf_titles()
+{
+echo "Fixing any UTF8 in titles"
+find . -name '*.dat' | xargs egrep -l '^title:.*Ã' |
+while read x
+do
+	TITLE=`egrep '^title: ' $x | sed 's/^title: //'`
+	if echo "$TITLE" | iconv -f utf-8 -t iso-8859-1 > /dev/null 2>&1
+	then
+		CONVERTED=`echo "$TITLE" | iconv -f utf-8 -t iso-8859-1 | sed 's@/@\\\/@g'`
+		sed -i "/^title: /s/.*/title: $CONVERTED/" $x
+	else
+#		echo "Mixed encoding for $x"
+		if echo "$TITLE" | egrep '^Oidhreacht na hÉireann' > /dev/null
+		then
+			sed -i "s/^title: Oidhreacht na hÉireann/title: Oidhreacht na hÃ‰ireann/" $x
+			# and will be converted upon next run
+		else
+			sed -i "/^title: /{s/PRÃ?TACAL/PRÓTACAL/g; s/hÃ?IREANN/hÉIREANN/g; s/BUNÃ?/BUNÚ/g; s/SÃ?ISIALTA/SÓISIALTA/g; s/FORÃ?ÂLACHAÃ/FORÁLACHA/g; s/BUNÃ?SACHA/BUNÚSACHA/g; s/Ã?ireann/Éireann/g; s/OIBRIÃ?/OIBRIÚ/g; s/LEASÃ?/LEASÚ/g; s/THRÃ?IMHSE/THRÉIMHSE/g; s/NÃISIÃ?N/NÁISIÚN/g; s/COMHTHÃTHÃ?/COMHTHÁTHÚ/g; s/BUISÃ?AD/BUISÉAD/g; s/BREITHIÃ?N/BREITHIÚN/g}" $x
+		fi
+	fi
+done
+}
+
 
 fix_la()
 {
@@ -138,6 +162,7 @@ nics_fixer
 #slaiseanna
 irish_times
 aprn_fixer
+fix_utf_titles
 fixone 'SourceForge.net CVS Repository - markup' 'Stór sonraí CVS ag SourceForge.net - marcáil'
 fixone 'Untitled Document$' 'Gan Teideal'
 fixone '[Uu]ntitled *$' 'Gan Teideal'
@@ -154,6 +179,7 @@ fixone 'Welcome to the Railway Procurement Agency' 'An Ghníomhaireacht Um Fháil 
 fixone 'Sonrai an Ghrupa' 'Sonraí an Ghrúpa'
 # sic!
 fixone 'Arts Council.An Chomhaile Ealaíon' 'An Chomhairle Ealaíon'
+fixone 'Árainn Mhór Bulletin Board ::' 'Clár Fógraí Árann Mhóir ::'
 fixone '  [*]* TITLE [*]*' 'Feidhmeannas an Tuaiscirt - Preasráiteas'
 fixone ' - Wikipedia$' ' - Vicipéid'
 fixone ' - Wikiquote$' ' - Vicísliocht'
