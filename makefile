@@ -44,6 +44,9 @@ killdupes : FORCE
 	mv dupe.tmp dupescr
 	echo 'look at dupescr and then bash it to actually kill the dupes'
 
+freqs : FORCE
+	perl totalfreqs.pl > $(crubadandir)/FREQ
+
 clean :
 	rm -f *.o
 FORCE :
