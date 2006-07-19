@@ -33,7 +33,7 @@ installhtml :
 	$(INSTALL_DATA) cabhair.html ${HOME}/public_html/aimsigh
 
 pillagecheck : FORCE
-	(cd $(crubadandir); egrep -f PILLAGED MANIFEST | egrep -v '(http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary|http://www.tobar.ie/vb/|http://www.peoplesrepublicofcork)')
+	(cd $(crubadandir); egrep -f PILLAGED MANIFEST | egrep -v '(http://www.waterfordcoco.ie/|https?://listserv.heanet.ie/|http://bbs\.mayo|http://www.englishirishdictionary|http://www.oireachtas.ie/|http://www.tobar.ie/vb/|http://www.peoplesrepublicofcork)')
 
 killdupes : FORCE
 	rm -f dupescr dupelog
@@ -45,7 +45,7 @@ killdupes : FORCE
 	echo 'look at dupescr and then bash it to actually kill the dupes'
 
 freqs : FORCE
-	perl totalfreqs.pl > $(crubadandir)/FREQ
+	perl totalfreq.pl > $(crubadandir)/FREQ
 
 clean :
 	rm -f *.o
