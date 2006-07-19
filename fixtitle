@@ -155,6 +155,9 @@ rm -f $TMPCHOMHAD
 
 fix_la
 cd /usr/local/share/crubadan/ga/sonrai
+fixone 'Order of Business\.' 'Ord Gnó.'
+fixone 'Munster Women Writers Project' 'Tionscnamh Scríbhneoirí Ban na Mumhan'
+fixone 'National Council for Curriculum and Assessment . An ' 'An '
 fixone 'Learning Irish Gaelic: Lesson ' 'Foghlaim na Gaeilge: Ceacht '
 fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-hss \([^ ]\)' '\1'
 fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-edu \([^ ]\)' '\1'
@@ -289,3 +292,9 @@ fixone 'The Dormant Accounts Fund Disbursements Board' 'An Bord Eisíocaíochtaí C
 fixone 'Government of Ireland - Department of Finance' 'Rialtas na hÉireann - An Roinn Airgeadais'
 fixone 'Department of Foreign Affairs - Government of Ireland' 'An Roinn Gnóthaí Eachtracha - Rialtas na hÉireann'
 fixone 'European Constitution - Preamble - Department of Foreign Affairs - Ireland' 'Bunreacht na hEorpa - Brollach - An Roinn Gnóthaí Eachtracha - Rialtas na hÉireann'
+fixone 'Planet Of The Blogs - Irish blogs aggregator' 'Pláinéad na mBlaganna - Comhbhailitheoir Blaganna Éireannach'
+fixone 'National Development Plan' 'Plean Forbartha Náisiúnta'
+fixone 'Irish Blogs and Bloggers' 'Blaganna agus Blagadóirí Éireannacha'
+fixone 'National Framework of Qualifications' 'Údarás Náisiúnta Cáilíochtaí na hÉireann'
+fixone "A Policy Framework For The Irish Museum Sector" "Creat Polasaí d'Earnáil Mhúsaeim na hÉireann -"
+fixone ' - Written Answers\.' ' - Freagraí Scríofa.'
