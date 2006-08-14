@@ -1,5 +1,7 @@
 #!/bin/bash
 
+echo "cd /usr/local/share/crubadan/ga"
+rm -f ${HOME}/seal/ciu/*.txt ${HOME}/seal/ciu/scr
 cd /usr/local/share/crubadan/ga
 find ciu -name '*.txt' | xargs egrep -l 'Ã' |
 while read x
@@ -17,9 +19,13 @@ do
 	if egrep '^format: html' ${DATAFILE} > /dev/null
 	then
 		HTMLFILE=`echo $y | sed 's/ciu/taisce/' | sed 's/txt/html/'`
+		NUMB=`echo $y | sed 's/^ciu\///; s/\.txt//'`
 		echo "vilistextum -y UTF-8 --no-image --remove-empty-alt -errorlevel 0 $HTMLFILE - | recode -f \"u8..iso-8859-1\" > $y"
+		echo "echo '${NUMB}' >> ANCIU"
 	else
 		TEMPFILE=`echo $y | sed 's/^/~\/seal\//'`
+		NUMBER=`echo $y | sed 's/^ciu\///; s/\.txt//'`
 		echo "cat $y | recode -f \"u8..iso-8859-1\" > $TEMPFILE"
+		echo "cp -f ${NUMBER}.txt /usr/local/share/crubadan/ga/ciu; echo '${NUMBER}' >> /usr/local/share/crubadan/ga/ANCIU" >> ${HOME}/seal/ciu/scr
 	fi
 done
