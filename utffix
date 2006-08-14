@@ -13,6 +13,13 @@ do
 done |
 while read y
 do
-	HTMLFILE=`echo $y | sed 's/ciu/taisce/' | sed 's/txt/html/'`
-	echo "vilistextum -y UTF-8 --no-image --remove-empty-alt -errorlevel 0 $HTMLFILE - | recode -f \"u8..iso-8859-1\" > $y"
+	DATAFILE=`echo $y | sed 's/ciu/sonrai/' | sed 's/txt/dat/'`
+	if egrep '^format: html' ${DATAFILE} > /dev/null
+	then
+		HTMLFILE=`echo $y | sed 's/ciu/taisce/' | sed 's/txt/html/'`
+		echo "vilistextum -y UTF-8 --no-image --remove-empty-alt -errorlevel 0 $HTMLFILE - | recode -f \"u8..iso-8859-1\" > $y"
+	else
+		TEMPFILE=`echo $y | sed 's/^/~\/seal\//'`
+		echo "cat $y | recode -f \"u8..iso-8859-1\" > $TEMPFILE"
+	fi
 done
