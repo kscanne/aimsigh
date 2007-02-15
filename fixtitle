@@ -136,6 +136,21 @@ do
 done
 }
 
+fix_blank_titles()
+{
+TMPCHOMHAD=`mktemp`
+echo "Fixing blank titles..."
+find . -name '*.dat' | xargs grep -l "^title: [ ]*$" > $TMPCHOMHAD
+if [ -s $TMPCHOMHAD ]
+then
+	cat $TMPCHOMHAD | xargs sed -i "/^title: /s/.*/title: Gan teideal/"
+	echo "Applied change to " `cat $TMPCHOMHAD | wc -l` " lines"
+else
+	echo "Change not applied; no examples found..."
+fi
+rm -f $TMPCHOMHAD
+}
+
 # two args; first is regex to replace (BRE!), second is replacement
 fixone()
 {
@@ -168,6 +183,7 @@ slaiseanna
 irish_times
 aprn_fixer
 fix_utf_titles
+fix_blank_titles
 fixone 'West Belfast Tourism' 'Fáilte Feirste Thiar'
 fixone 'SourceForge.net CVS Repository - markup' 'Stór sonraí CVS ag SourceForge.net - marcáil'
 # lowercase "teideal" matches what's in togail, swishy.pl
