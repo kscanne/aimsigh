@@ -1,47 +1,22 @@
 #!/bin/bash
 
-fix_utf_titles()
-{
-echo "Fixing any UTF8 in titles"
-find . -name '*.dat' | xargs egrep -l '^title:.*√' |
-while read x
-do
-	TITLE=`egrep '^title: ' $x | sed 's/^title: //'`
-	if echo "$TITLE" | iconv -f utf-8 -t iso-8859-1 > /dev/null 2>&1
-	then
-		CONVERTED=`echo "$TITLE" | iconv -f utf-8 -t iso-8859-1 | sed 's@/@\\\/@g'`
-		sed -i "/^title: /s/.*/title: $CONVERTED/" $x
-	else
-#		echo "Mixed encoding for $x"
-		if echo "$TITLE" | egrep '^Oidhreacht na h…ireann' > /dev/null
-		then
-			sed -i "s/^title: Oidhreacht na h…ireann/title: Oidhreacht na h√âireann/" $x
-			# and will be converted upon next run
-		else
-			sed -i "/^title: /{s/PR√?TACAL/PR”TACAL/g; s/h√?IREANN/h…IREANN/g; s/BUN√?/BUN⁄/g; s/S√?ISIALTA/S”ISIALTA/g; s/FOR√?¬LACHA√/FOR¡LACHA/g; s/BUN√?SACHA/BUN⁄SACHA/g; s/√?ireann/…ireann/g; s/OIBRI√?/OIBRI⁄/g; s/LEAS√?/LEAS⁄/g; s/THR√?IMHSE/THR…IMHSE/g; s/N√ISI√?N/N¡ISI⁄N/g; s/COMHTH√TH√?/COMHTH¡TH⁄/g; s/BUIS√?AD/BUIS…AD/g; s/BREITHI√?N/BREITHI⁄N/g}" $x
-		fi
-	fi
-done
-}
-
-
 fix_la()
 {
-echo "Fixing L· titles"
+echo "Fixing L√° titles"
 cd /usr/local/share/crubadan/ga
 ugrep 'www\.nuacht\.com/story/[?]' | sed 's/:.*//' |
 while read x
 do
 	TAISCE=`echo $x | sed 's/sonrai/taisce/' | sed 's/\.dat/.html/'`
 	TEIDEAL=`cat $TAISCE | tr -d '\015' | egrep -m 1 '<b>' | sed 's/^[^<>]*>//' | sed 's/<[^>]*>//g' | sed 's/ *$//' | sed 's/^ *//' | sed 's@/@\\/@g'`
-	sed -i "/^title: /s/.*/title: Alt i <i>L·<\/i>: $TEIDEAL/" $x
+	sed -i "/^title: /s/.*/title: Alt i <i>L√°<\/i>: $TEIDEAL/" $x
 done
 }
 
 slaiseanna()
 {
 echo "Fixing slaiseanna when sure"
-find . -name '*.dat' | xargs egrep '^title:.*[aeiouAEIOU]/' | egrep '\[Aireacha\]' | sed 's/:.*//' | xargs sed -i 's/a\//·/g; s/e\//È/g; s/i\//Ì/g; s/o\//Û/g; s/u\//˙/g; s/A\//¡/g; s/E\//…/g; s/I\//Õ/g; s/O\//”/g; s/U\//⁄/g'
+find . -name '*.dat' | xargs egrep '^title:.*[aeiouAEIOU]/' | egrep '\[Aireacha\]' | sed 's/:.*//' | xargs sed -i 's/a\//√°/g; s/e\//√©/g; s/i\//√≠/g; s/o\//√≥/g; s/u\//√∫/g; s/A\//√Å/g; s/E\//√â/g; s/I\//√ç/g; s/O\//√ì/g; s/U\//√ö/g'
 }
 
 irish_times()
@@ -54,16 +29,16 @@ do
 	YEAR=`echo $DT | sed 's/-.*//'`
 	MONTH=`echo $DT | sed 's/.*-\(..\).*/\1/'`
 	DAY=`echo $DT | sed 's/.*-..//'`
-	M="Ean·ir"
+	M="Ean√°ir"
 	if [ $MONTH = "02" ]; then M="Feabhra"; fi
-	if [ $MONTH = "03" ]; then M="M·rta"; fi
-	if [ $MONTH = "04" ]; then M="Aibre·n"; fi
+	if [ $MONTH = "03" ]; then M="M√°rta"; fi
+	if [ $MONTH = "04" ]; then M="Aibre√°n"; fi
 	if [ $MONTH = "05" ]; then M="Bealtaine"; fi
 	if [ $MONTH = "06" ]; then M="Meitheamh"; fi
-	if [ $MONTH = "07" ]; then M="I˙il"; fi
-	if [ $MONTH = "08" ]; then M="L˙nasa"; fi
-	if [ $MONTH = "09" ]; then M="Me·n FÛmhair"; fi
-	if [ $MONTH = "10" ]; then M="Deireadh FÛmhair"; fi
+	if [ $MONTH = "07" ]; then M="I√∫il"; fi
+	if [ $MONTH = "08" ]; then M="L√∫nasa"; fi
+	if [ $MONTH = "09" ]; then M="Me√°n F√≥mhair"; fi
+	if [ $MONTH = "10" ]; then M="Deireadh F√≥mhair"; fi
 	if [ $MONTH = "11" ]; then M="Samhain"; fi
 	if [ $MONTH = "12" ]; then M="Nollaig"; fi
 	ANSWER="title: An Teanga Bheo - $DAY $M $YEAR"
@@ -86,16 +61,16 @@ do
 	YEAR=`echo $DT | sed 's/-.*//'`
 	MONTH=`echo $DT | sed 's/.*-\([^0-9]*\).*/\1/'`
 	DAY=`echo $DT | sed 's/.*-[^0-9]*//'`
-	M="Ean·ir"
+	M="Ean√°ir"
 	if [ $MONTH = "February" ]; then M="Feabhra"; fi
-	if [ $MONTH = "March" ]; then M="M·rta"; fi
-	if [ $MONTH = "April" ]; then M="Aibre·n"; fi
+	if [ $MONTH = "March" ]; then M="M√°rta"; fi
+	if [ $MONTH = "April" ]; then M="Aibre√°n"; fi
 	if [ $MONTH = "May" ]; then M="Bealtaine"; fi
 	if [ $MONTH = "June" ]; then M="Meitheamh"; fi
-	if [ $MONTH = "July" ]; then M="I˙il"; fi
-	if [ $MONTH = "August" ]; then M="L˙nasa"; fi
-	if [ $MONTH = "September" ]; then M="Me·n FÛmhair"; fi
-	if [ $MONTH = "October" ]; then M="Deireadh FÛmhair"; fi
+	if [ $MONTH = "July" ]; then M="I√∫il"; fi
+	if [ $MONTH = "August" ]; then M="L√∫nasa"; fi
+	if [ $MONTH = "September" ]; then M="Me√°n F√≥mhair"; fi
+	if [ $MONTH = "October" ]; then M="Deireadh F√≥mhair"; fi
 	if [ $MONTH = "November" ]; then M="Samhain"; fi
 	if [ $MONTH = "December" ]; then M="Nollaig"; fi
 	sed -i "/^title: AN PHOB/s/.*/title: An Phoblacht - $DAY $M $YEAR/" $cand
@@ -113,25 +88,25 @@ do
 	YEAR=`echo $DT | sed 's/^\(..\).*/20\1/'`
 	MONTH=`echo $DT | sed 's/^..\(..\).*/\1/'`
 	DAY=`echo $DT | sed 's/^....//'`
-	M="Ean·ir"
+	M="Ean√°ir"
 	if [ $MONTH = "02" ]; then M="Feabhra"; fi
-	if [ $MONTH = "03" ]; then M="M·rta"; fi
-	if [ $MONTH = "04" ]; then M="Aibre·n"; fi
+	if [ $MONTH = "03" ]; then M="M√°rta"; fi
+	if [ $MONTH = "04" ]; then M="Aibre√°n"; fi
 	if [ $MONTH = "05" ]; then M="Bealtaine"; fi
 	if [ $MONTH = "06" ]; then M="Meitheamh"; fi
-	if [ $MONTH = "07" ]; then M="I˙il"; fi
-	if [ $MONTH = "08" ]; then M="L˙nasa"; fi
-	if [ $MONTH = "09" ]; then M="Me·n FÛmhair"; fi
-	if [ $MONTH = "10" ]; then M="Deireadh FÛmhair"; fi
+	if [ $MONTH = "07" ]; then M="I√∫il"; fi
+	if [ $MONTH = "08" ]; then M="L√∫nasa"; fi
+	if [ $MONTH = "09" ]; then M="Me√°n F√≥mhair"; fi
+	if [ $MONTH = "10" ]; then M="Deireadh F√≥mhair"; fi
 	if [ $MONTH = "11" ]; then M="Samhain"; fi
 	if [ $MONTH = "12" ]; then M="Nollaig"; fi
 	if [ "$FLAV" = "hss" ]
 	then
-		sed -i "/^title: *[0-9]*[a-z]*-hss/s/.*/title: Preasr·iteas $DAY $M $YEAR - Roinn Sl·inte, SeirbhÌsÌ SÛisialta agus S·bh·ilteachta PoiblÌ/" $cand
+		sed -i "/^title: *[0-9]*[a-z]*-hss/s/.*/title: Preasr√°iteas $DAY $M $YEAR - Roinn Sl√°inte, Seirbh√≠s√≠ S√≥isialta agus S√°bh√°ilteachta Poibl√≠/" $cand
 	fi
 	if [ "$FLAV" = "edu" ]
 	then
-		sed -i "/^title: *[0-9]*[a-z]*-edu/s/.*/title: Preasr·iteas $DAY $M $YEAR - An Roinn Oideachais/" $cand
+		sed -i "/^title: *[0-9]*[a-z]*-edu/s/.*/title: Preasr√°iteas $DAY $M $YEAR - An Roinn Oideachais/" $cand
 	fi
 done
 }
@@ -170,8 +145,8 @@ rm -f $TMPCHOMHAD
 
 fix_la
 cd /usr/local/share/crubadan/ga/sonrai
-fixone 'Order of Business\.' 'Ord GnÛ.'
-fixone 'Munster Women Writers Project' 'Tionscnamh ScrÌbhneoirÌ Ban na Mumhan'
+fixone 'Order of Business\.' 'Ord Gn√≥.'
+fixone 'Munster Women Writers Project' 'Tionscnamh Scr√≠bhneoir√≠ Ban na Mumhan'
 fixone 'National Council for Curriculum and Assessment . An ' 'An '
 fixone 'Learning Irish Gaelic: Lesson ' 'Foghlaim na Gaeilge: Ceacht '
 fixone '[0-9][0-9][0-9][0-9][0-9][0-9][a-z]*-hss \([^ ]\)' '\1'
@@ -182,135 +157,134 @@ nics_fixer
 slaiseanna
 irish_times
 aprn_fixer
-fix_utf_titles
 fix_blank_titles
-fixone 'West Belfast Tourism' 'F·ilte Feirste Thiar'
-fixone 'SourceForge.net CVS Repository - markup' 'StÛr sonraÌ CVS ag SourceForge.net - marc·il'
+fixone 'West Belfast Tourism' 'F√°ilte Feirste Thiar'
+fixone 'SourceForge.net CVS Repository - markup' 'St√≥r sonra√≠ CVS ag SourceForge.net - marc√°il'
 # lowercase "teideal" matches what's in togail, swishy.pl
 fixone 'Untitled Document$' 'Gan teideal'
 fixone '[Uu]ntitled *$' 'Gan teideal'
 # embedded nbsp
-fixone 'Better Regulation.-' 'Rial·il NÌos Fearr -'
+fixone 'Better Regulation.-' 'Rial√°il N√≠os Fearr -'
 fixone 'NA GAEIL . THE GAELIC PEOPLE ' 'NA GAEIL '
 # sic - tobar.ie
-fixone 'mh˙inteoiri' 'mh˙inteoirÌ'
+fixone 'mh√∫inteoiri' 'mh√∫inteoir√≠'
 # sic
-fixone 'Colaiste na bhFiann' 'Col·iste na bhFiann'
-fixone 'Better Government -' 'Rialtas NÌos Fearr -'
-fixone 'Welcome to the Railway Procurement Agency' 'An GhnÌomhaireacht Um Fh·il IarnrÛd'
+fixone 'Colaiste na bhFiann' 'Col√°iste na bhFiann'
+fixone 'Better Government -' 'Rialtas N√≠os Fearr -'
+fixone 'Welcome to the Railway Procurement Agency' 'An Ghn√≠omhaireacht Um Fh√°il Iarnr√≥d'
 # sic
-fixone 'Sonrai an Ghrupa' 'SonraÌ an Ghr˙pa'
+fixone 'Sonrai an Ghrupa' 'Sonra√≠ an Ghr√∫pa'
 # sic!
-fixone 'Arts Council.An Chomhaile EalaÌon' 'An Chomhairle EalaÌon'
-fixone '¡rainn MhÛr Bulletin Board ::' 'Cl·r FÛgraÌ ¡rann MhÛir ::'
-fixone '  [*]* TITLE [*]*' 'Feidhmeannas an Tuaiscirt - Preasr·iteas'
-fixone ' - Wikipedia$' ' - VicipÈid'
-fixone ' - Wikiquote$' ' - VicÌsliocht'
-fixone ' - Wikibooks$' ' - VicÌleabhair'
-fixone ' - Wiktionary$' ' - VicÌfhoclÛir'
-fixone 'About RT…' 'Maidir le RT…'
-fixone 'The National Action Plan Against Racism' 'An Plean GnÌomhaÌochta N·isi˙nta in Aghaidh CinÌochais'
-fixone 'Department of Health, Social Services and Public Safety' 'Roinn Sl·inte, SeirbhÌsÌ SÛisialta agus S·bh·ilteachta PoiblÌ'
-fixone 'Message from the President of Ireland' 'Teachtaireacht Ûn Uachtar·n'
-fixone 'Primary Curriculum Support Programme' 'Cl·r TacaÌochta don Churaclam Bunscoile'
-fixone 'Leaving Certificate Vocational Programme' 'Gairmchl·r na hArdteistimÈireachta'
-fixone 'Irish Cervical Screening Programme' 'Cl·r na h…ireann um Scagadh Ceirbheacsach'
-fixone 'CL¡R Programme, County Kerry' 'CL¡R (Ceantair Laga ¡rd-Riachtanais), Contae ChiarraÌ'
-fixone 'Cork City Council > Our Services: Corporate Affairs' 'Comhairle Cathrach ChorcaÌ > SeirbhÌsÌ: C˙rsaÌ GnÛ'
-fixone 'Arts Council Ireland News, Information' 'An Chomhairle EalaÌon: Nuacht, Eolas'
-fixone 'Seanad Debates ' 'DÌospÛireachtaÌ Seanaid '
-fixone 'D·il Debates ' 'DÌospÛireachtaÌ D·la '
-fixone 'Seanad Debate ' 'DÌospÛireacht Seanaid '
-fixone 'D·il Debate ' 'DÌospÛireacht D·la '
-fixone 'Higher Education Authority . An t⁄' 'An t⁄'
+fixone 'Arts Council.An Chomhaile Eala√≠on' 'An Chomhairle Eala√≠on'
+fixone '√Årainn Mh√≥r Bulletin Board ::' 'Cl√°r F√≥gra√≠ √Årann Mh√≥ir ::'
+fixone '  [*]* TITLE [*]*' 'Feidhmeannas an Tuaiscirt - Preasr√°iteas'
+fixone ' - Wikipedia$' ' - Vicip√©id'
+fixone ' - Wikiquote$' ' - Vic√≠sliocht'
+fixone ' - Wikibooks$' ' - Vic√≠leabhair'
+fixone ' - Wiktionary$' ' - Vic√≠fhocl√≥ir'
+fixone 'About RT√â' 'Maidir le RT√â'
+fixone 'The National Action Plan Against Racism' 'An Plean Gn√≠omha√≠ochta N√°isi√∫nta in Aghaidh Cin√≠ochais'
+fixone 'Department of Health, Social Services and Public Safety' 'Roinn Sl√°inte, Seirbh√≠s√≠ S√≥isialta agus S√°bh√°ilteachta Poibl√≠'
+fixone 'Message from the President of Ireland' 'Teachtaireacht √≥n Uachtar√°n'
+fixone 'Primary Curriculum Support Programme' 'Cl√°r Taca√≠ochta don Churaclam Bunscoile'
+fixone 'Leaving Certificate Vocational Programme' 'Gairmchl√°r na hArdteistim√©ireachta'
+fixone 'Irish Cervical Screening Programme' 'Cl√°r na h√âireann um Scagadh Ceirbheacsach'
+fixone 'CL√ÅR Programme, County Kerry' 'CL√ÅR (Ceantair Laga √Ård-Riachtanais), Contae Chiarra√≠'
+fixone 'Cork City Council > Our Services: Corporate Affairs' 'Comhairle Cathrach Chorca√≠ > Seirbh√≠s√≠: C√∫rsa√≠ Gn√≥'
+fixone 'Arts Council Ireland News, Information' 'An Chomhairle Eala√≠on: Nuacht, Eolas'
+fixone 'Seanad Debates ' 'D√≠osp√≥ireachta√≠ Seanaid '
+fixone 'D√°il Debates ' 'D√≠osp√≥ireachta√≠ D√°la '
+fixone 'Seanad Debate ' 'D√≠osp√≥ireacht Seanaid '
+fixone 'D√°il Debate ' 'D√≠osp√≥ireacht D√°la '
+fixone 'Higher Education Authority . An t√ö' 'An t√ö'
 # RISKY
-#fixone 'Press Releases' 'Preaseisi˙intÌ'
-fixone ' - Information By Topic' ' Eolas De RÈir ¡bhair'
-fixone 'National Roads Authority \?:' 'An t⁄dar·s um BÛithre N·isi˙nta:'
-fixone 'Article from An Ch' 'Alt Ûn Ch'
-fixone '  Oral Answers' '  FreagraÌ Û bhÈal'
+#fixone 'Press Releases' 'Preaseisi√∫int√≠'
+fixone ' - Information By Topic' ' Eolas De R√©ir √Åbhair'
+fixone 'National Roads Authority \?:' 'An t√ödar√°s um B√≥ithre N√°isi√∫nta:'
+fixone 'Article from An Ch' 'Alt √≥n Ch'
+fixone '  Oral Answers' '  Freagra√≠ √≥ bh√©al'
 fixone ' - Volume ' ' - Imleabhar '
-fixone '\([^a-zA-Z]\) Annual Report' '\1 Tuarasc·il Bhliant˙il'
-fixone 'Public Jobs -' 'SeirbhÌs Um Cheapach·in PhoiblÌ -'
-fixone 'Royal Irish Academy' 'Acadamh RÌoga na h…ireann'
+fixone '\([^a-zA-Z]\) Annual Report' '\1 Tuarasc√°il Bhliant√∫il'
+fixone 'Public Jobs -' 'Seirbh√≠s Um Cheapach√°in Phoibl√≠ -'
+fixone 'Royal Irish Academy' 'Acadamh R√≠oga na h√âireann'
 #  RISKY - tgrep manually first and fix ones like "Order Publications", etc.
-#fixone 'Publications' 'Foilseach·in'
-fixone 'State Examination Commission' 'Coimisi˙n na Scr˙duithe St·it'
+#fixone 'Publications' 'Foilseach√°in'
+fixone 'State Examination Commission' 'Coimisi√∫n na Scr√∫duithe St√°it'
 fixone 'Department of the Taoiseach - Roinn an Taoisigh' 'Roinn an Taoisigh'
 fixone 'Department of the Taoiseach - ' 'Roinn an Taoisigh - '
-fixone 'Irish Patents Office' 'Oifig na bPaitinnÌ'
+fixone 'Irish Patents Office' 'Oifig na bPaitinn√≠'
 fixone 'Irish language residence' 'Aonad na Gaeilge'
-fixone 'NUI Galway,' 'Ollscoil na h…ireann Gaillimh,'
+fixone 'NUI Galway,' 'Ollscoil na h√âireann Gaillimh,'
 fixone 'Galway County Library Text Only' 'Leabharlann Chontae na Gaillimhe'
 fixone 'Galway County Library' 'Leabharlann Chontae na Gaillimhe'
-fixone 'Selected instruments taken from the Treaties' 'Cnuasach na gConarthaÌ'
-fixone 'Consolidated versions' 'Leaganacha comhdhl˙ite'
-fixone 'Web Links' 'Naisc GhrÈas·in'
-fixone 'Foras na Gaeilge - Eolaire - Business' 'Foras na Gaeilge - Eolaire - GnÛ'
-fixone 'Heritage Ireland - ' 'Oidhreacht na h…ireann - '
-fixone 'Department of Community, Rural and Gaeltacht Affairs' 'An Roinn GnÛthaÌ Pobail, Tuaithe agus Gaeltachta'
-fixone 'F·ilte go ClÛ Iar-Chonnachta .CIC..  - Welcome to ClÛ Iar-Chonnachta .CIC.' 'F·ilte go ClÛ Iar-Chonnachta (CIC)'
-fixone 'TG4 - Irish language television channel - Teilifis Gaeilge' 'TG4 - TeilifÌs Ghaeilge'
-fixone 'Department of Education . Science -' 'An Roinn Oideachais Agus EolaÌochta -'
+fixone 'Selected instruments taken from the Treaties' 'Cnuasach na gConartha√≠'
+fixone 'Consolidated versions' 'Leaganacha comhdhl√∫ite'
+fixone 'Web Links' 'Naisc Ghr√©as√°in'
+fixone 'Foras na Gaeilge - Eolaire - Business' 'Foras na Gaeilge - Eolaire - Gn√≥'
+fixone 'Heritage Ireland - ' 'Oidhreacht na h√âireann - '
+fixone 'Department of Community, Rural and Gaeltacht Affairs' 'An Roinn Gn√≥tha√≠ Pobail, Tuaithe agus Gaeltachta'
+fixone 'F√°ilte go Cl√≥ Iar-Chonnachta .CIC..  - Welcome to Cl√≥ Iar-Chonnachta .CIC.' 'F√°ilte go Cl√≥ Iar-Chonnachta (CIC)'
+fixone 'TG4 - Irish language television channel - Teilifis Gaeilge' 'TG4 - Teilif√≠s Ghaeilge'
+fixone 'Department of Education . Science -' 'An Roinn Oideachais Agus Eola√≠ochta -'
 fixone ' Department of Education \([0-9]\)' ' An Roinn Oideachais - \1'
-fixone '2003 Special Olympics' 'CluichÌ Oilimpeacha Speisialta 2003'
-fixone 'Ombudsman.s Annual Report' 'Tuarasc·il Bhliant˙il an Ombudsman'
-fixone 'F¡S Annual Report . Financial Statements' 'F¡S: Tuarasc·il Bhliant˙il agus R·itis Airgeadais'
+fixone '2003 Special Olympics' 'Cluich√≠ Oilimpeacha Speisialta 2003'
+fixone 'Ombudsman.s Annual Report' 'Tuarasc√°il Bhliant√∫il an Ombudsman'
+fixone 'F√ÅS Annual Report . Financial Statements' 'F√ÅS: Tuarasc√°il Bhliant√∫il agus R√°itis Airgeadais'
 fixone 'Ceisteanna--Questions' 'Ceisteanna'
-fixone 'January,\? \([0-9][0-9][0-9][0-9]\)' 'Ean·ir \1'
+fixone 'January,\? \([0-9][0-9][0-9][0-9]\)' 'Ean√°ir \1'
 fixone 'February,\? \([0-9][0-9][0-9][0-9]\)' 'Feabhra \1'
-fixone 'March,\? \([0-9][0-9][0-9][0-9]\)' 'M·rta \1'
-fixone 'April,\? \([0-9][0-9][0-9][0-9]\)' 'Aibre·n \1'
+fixone 'March,\? \([0-9][0-9][0-9][0-9]\)' 'M√°rta \1'
+fixone 'April,\? \([0-9][0-9][0-9][0-9]\)' 'Aibre√°n \1'
 fixone 'May,\? \([0-9][0-9][0-9][0-9]\)' 'Bealtaine \1'
 fixone 'June,\? \([0-9][0-9][0-9][0-9]\)' 'Meitheamh \1'
-fixone 'July,\? \([0-9][0-9][0-9][0-9]\)' 'I˙il \1'
-fixone 'August,\? \([0-9][0-9][0-9][0-9]\)' 'L˙nasa \1'
-fixone 'September,\? \([0-9][0-9][0-9][0-9]\)' 'Me·n FÛmhair \1'
-fixone 'October,\? \([0-9][0-9][0-9][0-9]\)' 'Deireadh FÛmhair \1'
+fixone 'July,\? \([0-9][0-9][0-9][0-9]\)' 'I√∫il \1'
+fixone 'August,\? \([0-9][0-9][0-9][0-9]\)' 'L√∫nasa \1'
+fixone 'September,\? \([0-9][0-9][0-9][0-9]\)' 'Me√°n F√≥mhair \1'
+fixone 'October,\? \([0-9][0-9][0-9][0-9]\)' 'Deireadh F√≥mhair \1'
 fixone 'November,\? \([0-9][0-9][0-9][0-9]\)' 'Samhain \1'
 fixone 'December,\? \([0-9][0-9][0-9][0-9]\)' 'Nollaig \1'
 fixone 'AN PHOBLACHT.REPUBLICAN NEWS' 'AN PHOBLACHT'
-fixone 'Health Service Executive  ' 'Feidhmeannacht na SeirbhÌse Sl·inte: '
+fixone 'Health Service Executive  ' 'Feidhmeannacht na Seirbh√≠se Sl√°inte: '
 fixone 'Foras na Gaeilge - Directory' 'Foras na Gaeilge - Eolaire'
-fixone 'Event details$' 'SonraÌ imeachta'
-fixone 'Peoples Republic Of Cork Forums' 'Daonphoblacht ChorcaÌ'
-fixone 'Yahoo! Groups ' 'Gr˙paÌ Yahoo! '
-fixone 'Welcome to Scoilnet' 'F·ilte go Scoilnet'
+fixone 'Event details$' 'Sonra√≠ imeachta'
+fixone 'Peoples Republic Of Cork Forums' 'Daonphoblacht Chorca√≠'
+fixone 'Yahoo! Groups ' 'Gr√∫pa√≠ Yahoo! '
+fixone 'Welcome to Scoilnet' 'F√°ilte go Scoilnet'
 fixone 'Microsoft Word - \([^ ]\)' '\1'
-fixone 'Microsoft Download Center' 'L·rionad Õosluchtaithe'
-fixone 'eolas-ibi Messages : Message \([0-9]*\) of ' 'TeachtaireachtaÌ eolas-ibi : Teachtaireacht \1 as '
-fixone 'Arts Council Ireland News - Press Releases' 'An Chomhairle EalaÌon - Preasr·itis'
+fixone 'Microsoft Download Center' 'L√°rionad √çosluchtaithe'
+fixone 'eolas-ibi Messages : Message \([0-9]*\) of ' 'Teachtaireachta√≠ eolas-ibi : Teachtaireacht \1 as '
+fixone 'Arts Council Ireland News - Press Releases' 'An Chomhairle Eala√≠on - Preasr√°itis'
 fixone 'Office of the Ombudsman' 'Oifig an Ombudsman'
-fixone 'Office of the Information Commissioner' 'Oifig an ChoimisinÈara FaisnÈise'
+fixone 'Office of the Information Commissioner' 'Oifig an Choimisin√©ara Faisn√©ise'
 fixone 'SEANCHAS-L Archives ' 'Cartlann SEANCHAS-L '
 fixone 'GAELIC-L Archives ' 'Cartlann GAELIC-L '
 fixone 'GAEILGE-A Archives ' 'Cartlann GAEILGE-A '
-fixone 'January \([0-9][0-9][0-9][0-9]\)' 'Ean·ir \1'
+fixone 'January \([0-9][0-9][0-9][0-9]\)' 'Ean√°ir \1'
 fixone 'February \([0-9][0-9][0-9][0-9]\)' 'Feabhra \1'
-fixone 'March \([0-9][0-9][0-9][0-9]\)' 'M·rta \1'
-fixone 'April \([0-9][0-9][0-9][0-9]\)' 'Aibre·n \1'
+fixone 'March \([0-9][0-9][0-9][0-9]\)' 'M√°rta \1'
+fixone 'April \([0-9][0-9][0-9][0-9]\)' 'Aibre√°n \1'
 fixone 'May \([0-9][0-9][0-9][0-9]\)' 'Bealtaine \1'
 fixone 'June \([0-9][0-9][0-9][0-9]\)' 'Meitheamh \1'
-fixone 'July \([0-9][0-9][0-9][0-9]\)' 'I˙il \1'
-fixone 'August \([0-9][0-9][0-9][0-9]\)' 'L˙nasa \1'
-fixone 'September \([0-9][0-9][0-9][0-9]\)' 'Me·n FÛmhair \1'
-fixone 'October \([0-9][0-9][0-9][0-9]\)' 'Deireadh FÛmhair \1'
+fixone 'July \([0-9][0-9][0-9][0-9]\)' 'I√∫il \1'
+fixone 'August \([0-9][0-9][0-9][0-9]\)' 'L√∫nasa \1'
+fixone 'September \([0-9][0-9][0-9][0-9]\)' 'Me√°n F√≥mhair \1'
+fixone 'October \([0-9][0-9][0-9][0-9]\)' 'Deireadh F√≥mhair \1'
 fixone 'November \([0-9][0-9][0-9][0-9]\)' 'Samhain \1'
 fixone 'December \([0-9][0-9][0-9][0-9]\)' 'Nollaig \1'
-fixone 'Irish dictionary online, Irish gaelic.*' 'FoclÛir BÈarla-Gaeilge ar lÌne'
-fixone 'BBC - Northern Ireland - Irish -' 'BBC - Tuaisceart …ireann - An Ghaeilge -'
-fixone 'BBC - Northern Ireland - Irish Language -' 'BBC - Tuaisceart …ireann - An Ghaeilge -'
-fixone 'BBC - Northern Ireland - Irish Music' 'BBC - Tuaisceart …ireann - Ceol …ireannach'
+fixone 'Irish dictionary online, Irish gaelic.*' 'Focl√≥ir B√©arla-Gaeilge ar l√≠ne'
+fixone 'BBC - Northern Ireland - Irish -' 'BBC - Tuaisceart √âireann - An Ghaeilge -'
+fixone 'BBC - Northern Ireland - Irish Language -' 'BBC - Tuaisceart √âireann - An Ghaeilge -'
+fixone 'BBC - Northern Ireland - Irish Music' 'BBC - Tuaisceart √âireann - Ceol √âireannach'
 fixone ':: View topic ' ':: Topaic '
-fixone 'The DaltaÌ Boards' 'Cl·riomr· DaltaÌ na Gaeilge'
+fixone 'The Dalta√≠ Boards' 'Cl√°riomr√° Dalta√≠ na Gaeilge'
 fixone 'The Pensions Board' 'An Bord Pinsean'
-fixone 'The Dormant Accounts Fund Disbursements Board' 'An Bord EisÌocaÌochtaÌ Chiste na gCuntas DÌomhaoin'
-fixone 'Government of Ireland - Department of Finance' 'Rialtas na h…ireann - An Roinn Airgeadais'
-fixone 'Department of Foreign Affairs - Government of Ireland' 'An Roinn GnÛthaÌ Eachtracha - Rialtas na h…ireann'
-fixone 'European Constitution - Preamble - Department of Foreign Affairs - Ireland' 'Bunreacht na hEorpa - Brollach - An Roinn GnÛthaÌ Eachtracha - Rialtas na h…ireann'
-fixone 'Planet Of The Blogs - Irish blogs aggregator' 'Pl·inÈad na mBlaganna - Comhbhailitheoir Blaganna …ireannach'
-fixone 'National Development Plan' 'Plean Forbartha N·isi˙nta'
-fixone 'Irish Blogs and Bloggers' 'Blaganna agus BlagadÛirÌ …ireannacha'
-fixone 'National Framework of Qualifications' '⁄dar·s N·isi˙nta C·ilÌochtaÌ na h…ireann'
-fixone "A Policy Framework For The Irish Museum Sector" "Creat PolasaÌ d'Earn·il Mh˙saeim na h…ireann -"
-fixone ' - Written Answers\.' ' - FreagraÌ ScrÌofa.'
+fixone 'The Dormant Accounts Fund Disbursements Board' 'An Bord Eis√≠oca√≠ochta√≠ Chiste na gCuntas D√≠omhaoin'
+fixone 'Government of Ireland - Department of Finance' 'Rialtas na h√âireann - An Roinn Airgeadais'
+fixone 'Department of Foreign Affairs - Government of Ireland' 'An Roinn Gn√≥tha√≠ Eachtracha - Rialtas na h√âireann'
+fixone 'European Constitution - Preamble - Department of Foreign Affairs - Ireland' 'Bunreacht na hEorpa - Brollach - An Roinn Gn√≥tha√≠ Eachtracha - Rialtas na h√âireann'
+fixone 'Planet Of The Blogs - Irish blogs aggregator' 'Pl√°in√©ad na mBlaganna - Comhbhailitheoir Blaganna √âireannach'
+fixone 'National Development Plan' 'Plean Forbartha N√°isi√∫nta'
+fixone 'Irish Blogs and Bloggers' 'Blaganna agus Blagad√≥ir√≠ √âireannacha'
+fixone 'National Framework of Qualifications' '√ödar√°s N√°isi√∫nta C√°il√≠ochta√≠ na h√âireann'
+fixone "A Policy Framework For The Irish Museum Sector" "Creat Polasa√≠ d'Earn√°il Mh√∫saeim na h√âireann -"
+fixone ' - Written Answers\.' ' - Freagra√≠ Scr√≠ofa.'
