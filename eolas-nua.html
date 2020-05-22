@@ -1,6 +1,6 @@
 <p>
 <i>
-This is the old "About" page for the now-defunct aimsigh.com search engine that 
+This is the old “About” page for the now-defunct aimsigh.com search engine that 
 I created in 2005. Even though hardly anyone used the site, it had some
 nice features, and I'm posting this now since contains a pretty good summary
 of the main issues arising in Irish language Information Retrieval.<br>
@@ -12,15 +12,15 @@ October 2015
 ...[this page] is directed primarily at my colleagues working
 on natural language processing and minority languages, particularly
 at those who might be interested in creating similar
-"linguistically sophisticated" search engines.
+“linguistically sophisticated” search engines.
 Because of this, I won't assume any prior knowledge of 
 Irish linguistics in what follows.
 </p>
 <p>
 There were two primary motivations for creating this site;
 the first was that existing search engines like
-<a target="_blank" href="http://www.google.com/">Google</a> and
-<a target="_blank" href="http://www.yahoo.com/">Yahoo!</a>,
+<a target="_blank" href="https://www.google.com/">Google</a> and
+<a target="_blank" href="https://www.yahoo.com/">Yahoo!</a>,
 as powerful as they can be for English search, are unsuitable for
 Irish in various ways that
 will be discussed in detail below.
@@ -29,9 +29,9 @@ that harnesses most of my
 previous work on language technology for Irish. 
 These earlier projects
 include the first Irish spellchecker
-(<a target="_blank" href="http://www.gaelspell.com/">GaelSpell</a>),
+(<a target="_blank" href="/gaelspell/index-en.html">GaelSpell</a>),
 part-of-speech tagger, morphological analyzer, grammar checker
-(<a target="_blank" href="https://cadhan.com/gramadoir/"><i>An Gramadóir</i></a>),
+(<a target="_blank" href="/gramadoir/index-en.html"><i>An Gramadóir</i></a>),
 electronic thesaurus, and web-crawled corpora
 (both <a target="_blank" href="http://crubadan.org/">monolingual</a> and
 bilingual).
@@ -62,19 +62,19 @@ which contains the full text of all Acts enacted by the Irish
 Parliament since 1922).
 So independent of the side one might take in the debate over the
 merits of the <i>Caighdeán</i>, these pre-standard and dialect
-documents are "out there", and we are faced with the
+documents are “out there”, and we are faced with the
 inescapable engineering challenge of making them easily available
 through a search interface.
 </p>
 <p>
 To achieve this, the <i>aimsigh.com</i> engine employs a sophisticated 
-"Irish standardizer" which amounts to a finite state transducer
+“Irish standardizer” which amounts to a finite state transducer
 encoding the morphological rules of non-standard Irish together
 with mappings to standardized forms.  These rules are augmented
 with a large database of non-standard/standard word pairs that was extracted in
 part from a parallel corpus of
 English and Irish texts (read more about this here:
-<a target="_blank" href="http://cs.slu.edu/~scannell/pub/ccgb.pdf">Applications of
+<a target="_blank" href="https://cs.slu.edu/~scannell/pub/ccgb.pdf">Applications of
 parallel corpora to the development of monolingual
 language technologies</a>).
 The end result is that if a user selects the box
@@ -90,7 +90,7 @@ A nice side-effect of this feature is that the standardization process
 also corrects common spelling errors, so if you can't remember
 how to spell <i>ionannas</i> and you search for <i>ionnanas</i>, you will
 still retrieve all documents containing the correct spelling.
-Conversely a search for <i>Údarás</i> ("Authority", spelled correctly)
+Conversely a search for <i>Údarás</i> (“Authority”, spelled correctly)
 will turn up documents containing
 misspellings <i>Udarás</i> or <i>Údaras</i> which is probably the
 desired behavior, since such misspellings are remarkably common,
@@ -120,14 +120,14 @@ the main <i>aimsigh.com</i> page (I generally select this button
 for all of my own searches).  For example, to find documents concerning
 the country of Sudan, one might search for the term <i>Súdáin</i>,
 but since this word generally follows the definite article in Irish,
-and is therefore prefixed with a "t", it is much more effective
+and is therefore prefixed with a “t”, it is much more effective
 to search with <i>aimsigh.com</i>...
 </p>
 <p>
 <b>3. Inflectional morphology</b><br>
 Irish morphology is much more complicated than English
 morphology, and because of this, it is desirable to perform
-"stemmed" searches in many instances.  For example, 
+“stemmed” searches in many instances.  For example, 
 if one is interested
 in Irish language schools it is convenient to be able
 to search for the single term <i>gaelscoil</i> and retrieve all documents
@@ -152,7 +152,7 @@ though this might be due in part to the fact that most research has
 been done on English or other languages with similarly limited 
 morphological complexity.
 The other issue is that a lot of online stemming is done with
-"resource-light" approaches like the Porter algorithm;
+“resource-light” approaches like the Porter algorithm;
 <i>aimsigh.com</i> instead uses a full lexicon and morphological analysis to
 guarantee correct stemming.
 It is worth noting also that Irish morphology is not nearly as complicated
@@ -173,7 +173,7 @@ And English is not the only problem;
 if you search for a very Irish-looking word like <i>luach</i> (value)
 with a standard search engine, you'll turn up very few
 Irish documents because this word
-also means "calendar" in Hebrew.
+also means “calendar” in Hebrew.
 In addition, there are many lexical conflicts with
 Scottish Gaelic, which has a somewhat smaller
 but not inconsequential web presence; a search
@@ -183,12 +183,12 @@ Irish Gaelic.
 So perhaps, in frustration, you swear off ever using
 any words that happen to coincide with anything from
 any other written language, and decide to search for
-<i>"Bunreacht na hÉireann"</i> (Constitution of Ireland). 
+<i>“Bunreacht na hÉireann”</i> (Constitution of Ireland). 
 As it turns out, the first seven hits on Google point
 to English documents!
 A related (but obviously less important) issue is the irritation
 of having to click through
-"Choose your language" splash pages on Irish governmental web sites
+“Choose your language” splash pages on Irish governmental web sites
 (when indeed a choice is offered).   You are taken to such a page
 for example when you
 search for <i>Foras na Gaeilge</i> with Google;
@@ -203,7 +203,7 @@ to particular languages.  The problem is that they usually
 only offer a selection of the most prominent 30-35 languages
 on the web.  Now without too much work (and granted a certain amount
 of volunteer help from native speakers) I was able
-to train statistical language recognizers for the "next" 150
+to train statistical language recognizers for the “next” 150
 or so languages and run web crawlers
 for each of them (see <a target="_blank" href="http://crubadan.org/">Corpus building for minority languages</a> for more information).  So I suspect that the
 restriction to 30+ languages on Google's site must be a user interface
@@ -226,15 +226,17 @@ So, as a consequence, the archives of such mailing lists
 (which form the single largest source
 of Irish language material on the web as of this writing),
 are essentially invisible to standard search engines (which
-would all index the above words as separate units "u"+"rsce"+"alai"
-or "te"+"acschomhad").
+would all index the above words as separate units
+<i>u</i> + <i>rsce</i> + <i>alai</i>
+or
+<i>te</i> + <i>acschomhad</i>).
 In contrast, the <i>aimsigh.com</i> engine automatically detects pages
 that use unusual conventions and converts them to a standard format for
 indexing....
 </p>
 <p>
 <b>6. Decapitalization according to Irish conventions</b><br>
-When certain initial mutations ("t" and "n" before vowels) are
+When certain initial mutations (“t” and “n” before vowels) are
 added to uppercase words, the mutating letter is written in 
 lowercase and without a hyphen: <i>Acht</i> &gt; <i>tAcht</i> (a legislative act),
 or <i>Ocht</i> &gt; <i>nOcht</i> (eight).  
@@ -242,7 +244,7 @@ On the other hand, the lowercase versions
 of the same words are written <em>with</em> hyphens: <i>t-acht</i>, <i>n-ocht</i>.
 The really bad news is that in these two cases, naïve conversion to lowercase
 produces completely different Irish words (<i>tacht</i> is a verb meaning
-"choke" and <i>nocht</i> is either a verb or adjective meaning "bare"). 
+“choke” and <i>nocht</i> is either a verb or adjective meaning “bare”). 
 So if (for whatever reason)
 you enter <i>tacht</i> into Google, the Irish language results that are
 retrieved are all incorrect, referring to <i>tAcht</i>...
@@ -254,11 +256,11 @@ a rudimentary system in place for translating
 English text to Irish. 
 This is used when documents are harvested from the web
 to translate boilerplate English titles into Irish; 
-for example "GAELIC-L Archives - June 2000" would appear in 
+for example “GAELIC-L Archives - June 2000” would appear in 
 <i>aimsigh.com</i>
-search results as "Cartlann GAELIC-L - Meitheamh 2000".
-Or bilingual titles like "TG4 - Irish language television channel - Teilifis Gaeilge" [sic] are shortened and corrected to 
-"TG4 - Teilifís Ghaeilge".   This makes for more effective
+search results as “Cartlann GAELIC-L - Meitheamh 2000”.
+Or bilingual titles like “TG4 - Irish language television channel - Teilifis Gaeilge” [sic] are shortened and corrected to 
+“TG4 - Teilifís Ghaeilge”.   This makes for more effective
 searching (since we assume primarily Irish language search terms
 will be used) and also a more pleasing Irish-only visual experience
 when scanning results.
@@ -266,14 +268,14 @@ when scanning results.
 <p>
 In addition, we augment useless titles with additional 
 information to help clarify the contents of the document.
-Here "useless" means, in the worst case, no title at all, as is the case 
+Here “useless” means, in the worst case, no title at all, as is the case 
 for articles in the newspaper <i>Lá</i>,
 but also refers to situations in which the title, even if translated, fails
 to provide useful clues as to the contents of the document, or fails
 to distinguish the document from others on the site; good examples
 are pages from the Irish Times <i>Teanga Bheo</i> site, 
 the majority of which are titled simply
-"An Teanga Bheo - The Irish Times weekly Irish language site".
+“An Teanga Bheo - The Irish Times weekly Irish language site”.
 For the <i>Lá</i> articles, we do our best to extract the
 title from the body of the HTML document and construct a title from that.
 For the <i>Teanga Bheo</i> articles, it is possible to extract the date of
@@ -294,11 +296,11 @@ turning these up by focusing our crawling on a relatively small number
 of especially productive (mostly .ie) domains...
 </p>
 <p>
-Conversely, "spam sites" are becoming more
+Conversely, “spam sites” are becoming more
 of a problem for the large search engines, and quite a few searches
 for Irish language documents will turn up useless sites that
 simply repeat verbatim excerpts from various other pages.
-For example, if you search for the title "Irish Times weekly Irish language"
+For example, if you search for the title “Irish Times weekly Irish language”
 on Google, there are 44 unique results returned of which only 5 appear
 to be legitimate.  Because of the smaller scale of <i>aimsigh.com</i>
 it is an easy matter to detect such sites semi-automatically
@@ -310,7 +312,7 @@ Even when there are documents available that contain
 legitimate Irish text, it sometimes happens that the page ranking algorithms
 are skewed in favor of sites that are heavily linked
 from non-Irish web pages.  A good example is the Open Directory
-Project <a target="_blank" href="http://dmoz.org/">dmoz.org</a> which often 
+Project <a target="_blank" href="https://dmoz-odp.org/">dmoz.org</a> which often 
 gets high page rankings because of its wide popularity (especially
 among English and German speakers).   Unfortunately almost
 no Irish language sites are contained in the directory and so
@@ -320,7 +322,7 @@ something like <i>Eolaíocht</i> with Google; about half of the returned
 results are from Open Directory mirror sites...
 </p>
 <p>
-Another example is the "Foras na Gaeilge" query discussed and linked above; 
+Another example is the “Foras na Gaeilge” query discussed and linked above; 
 the default English page is listed as the second search result,
 while the default Irish page is nowhere to be found.
 When ranking pages, <i>aimsigh.com</i> only considers links
